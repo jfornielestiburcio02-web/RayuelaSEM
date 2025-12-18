@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, doc, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
@@ -71,20 +71,27 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
   
   const { data: faltas, isLoading } = useCollection<AsistenciaDoc>(faltasQuery);
 
-  const sortedFaltas = useMemo(() => {
-    if (!faltas) return [];
-    return faltas.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [faltas]);
-
-  const handleDelete = async (recordId: string, recordDate: string) => {
+  const handleDelete = async (record: AsistenciaDoc) => {
     if (!firestore) return;
-    const docRef = doc(firestore, 'asistencia', recordId);
+    const docRef = doc(firestore, 'asistencia', record.id);
     try {
-        await deleteDoc(docRef);
-        toast({ title: 'Registro Eliminado', description: `Se ha eliminado la falta del ${formatDate(recordDate)}.` });
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().justificacion) {
+            // If there's a justification, don't delete the doc.
+            // Reset the status and remove the feedback. Keep the justification.
+            await updateDoc(docRef, {
+                status: 'asiste',
+                feedback: deleteField() 
+            });
+            toast({ title: 'Falta eliminada', description: `Se ha eliminado la falta, pero la justificación del alumno se ha mantenido.` });
+        } else {
+            // If there's no justification, delete the whole record.
+            await deleteDoc(docRef);
+            toast({ title: 'Registro Eliminado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
+        }
     } catch (error) {
-        console.error("Error al eliminar el registro:", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el registro.' });
+        console.error("Error al gestionar el registro:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo gestionar el registro.' });
     }
   };
 
@@ -99,7 +106,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
   const filteredAndSortedRecords = useMemo(() => {
     if (!faltas) return [];
     return faltas
-        .filter(record => record.status !== 'asiste')
+        .filter(record => record.status !== 'asiste' || record.justificacion)
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [faltas]);
 
@@ -140,6 +147,8 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                     </TableHeader>
                     <TableBody>
                         {filteredAndSortedRecords.map((record) => {
+                            if (record.status === 'asiste' && !record.justificacion) return null;
+
                             const displayInfo = statusDisplay[record.status] || { text: record.status, variant: 'outline' };
                             const isFullDayAbsence = record.status === 'falta_injustificada_completa' || record.status === 'falta_justificada_completa';
                             
@@ -153,32 +162,34 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                     </TableCell>
                                     <TableCell>{record.justificacion?.motivo || '-'}</TableCell>
                                     <TableCell className="text-right">
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    title="Eliminar registro"
-                                                    disabled={isFullDayAbsence}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                   Esta acción eliminará el registro de falta para este día. Esta acción no se puede deshacer.
-                                                </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(record.id, record.date)}>
-                                                    Eliminar
-                                                </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                       {record.status !== 'asiste' && (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        title="Eliminar registro"
+                                                        disabled={isFullDayAbsence}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                       Esta acción eliminará el registro de falta para este día. Si el alumno ha enviado una justificación, esta se conservará.
+                                                    </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(record)}>
+                                                        Eliminar
+                                                    </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                       )}
                                     </TableCell>
                                 </TableRow>
                             );
