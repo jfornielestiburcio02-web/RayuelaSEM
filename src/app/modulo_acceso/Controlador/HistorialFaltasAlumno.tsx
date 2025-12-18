@@ -90,15 +90,15 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
         const hasJustification = !!currentData.justificacion;
 
         if (hasJustification) {
-            // If there's a justification, change status to 'justificada' and remove feedback
-            // This 'accepts' the student's justification by removing the penalty
+            // If there's a justification, change status to 'asiste' to remove the fault,
+            // but keep the justification record.
             await updateDoc(docRef, {
-                status: 'justificada',
+                status: 'asiste',
                 feedback: deleteField()
             });
-            toast({ title: 'Falta Justificada', description: `Se ha aceptado la justificación del alumno para el ${formatDate(record.date)}.` });
+            toast({ title: 'Falta Aceptada', description: `Se ha aceptado la justificación del alumno para el ${formatDate(record.date)}.` });
         } else {
-            // If there's no justification, we can delete the whole document
+            // If there's no justification, delete the whole document.
             await deleteDoc(docRef);
             toast({ title: 'Registro Eliminado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
         }
@@ -157,7 +157,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                             const displayInfo = statusDisplay[record.status] || { text: record.status, variant: 'outline' };
                             const isFullDayAbsence = record.status === 'falta_injustificada_completa' || record.status === 'falta_justificada_completa';
                             
-                            // Do not show 'asiste' records in this table unless they have a justification
+                            // Do not show 'asiste' records in this table UNLESS they have a justification
                             if (record.status === 'asiste' && !record.justificacion) {
                                 return null;
                             }
