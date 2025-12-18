@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,11 +32,14 @@ type UserDoc = {
 
 type AsistenciaStatus = 'asiste' | 'injustificada' | 'retraso' | 'falta_injustificada_completa' | 'falta_justificada_completa' | 'justificada';
 
+type FeedbackStatus = 'positivo' | 'negativo';
+
 type AsistenciaDoc = {
     id: string;
     date: string;
     status: AsistenciaStatus;
     justificacion?: { motivo: string; descripcion?: string };
+    feedback?: FeedbackStatus;
 };
 
 type HistorialFaltasAlumnoProps = {
@@ -76,11 +79,31 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
     if (!firestore) return;
     const docRef = doc(firestore, 'asistencia', record.id);
     try {
-        await deleteDoc(docRef);
-        toast({ title: 'Registro eliminado', description: `Se ha eliminado el registro del ${formatDate(record.date)}.` });
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+             toast({ variant: 'destructive', title: 'Error', description: 'El registro ya no existe.' });
+             return;
+        }
+
+        const currentData = docSnap.data();
+        const hasJustification = !!currentData.justificacion;
+
+        if (hasJustification) {
+            // If there's a justification, reset status and feedback but keep justification
+            await updateDoc(docRef, {
+                status: 'asiste',
+                feedback: null // or deleteField() if you prefer
+            });
+        } else {
+            // If there's no justification, we can delete the whole document
+            await deleteDoc(docRef);
+        }
+
+        toast({ title: 'Registro actualizado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
+
     } catch (error) {
-        console.error("Error al eliminar el registro:", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el registro.' });
+        console.error("Error al modificar el registro:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo modificar el registro.' });
     }
   };
 
@@ -131,6 +154,12 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                         {sortedFaltas.map((record) => {
                             const displayInfo = statusDisplay[record.status] || { text: record.status, variant: 'outline' };
                             const isFullDayAbsence = record.status === 'falta_injustificada_completa' || record.status === 'falta_justificada_completa';
+                            
+                            // Do not show 'asiste' records in this table
+                            if (record.status === 'asiste' && !record.justificacion) {
+                                return null;
+                            }
+
                             return (
                                 <TableRow key={record.id}>
                                     <TableCell className="font-medium">{formatDate(record.date)}</TableCell>
@@ -147,7 +176,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                                     variant="ghost" 
                                                     size="icon" 
                                                     title="Eliminar registro"
-                                                    disabled={isFullDayAbsence}
+                                                    disabled={isFullDayAbsence || record.status === 'asiste'}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
@@ -156,13 +185,13 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                                 <AlertDialogHeader>
                                                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    Esta acción no se puede deshacer. Se eliminará permanentemente el registro de asistencia de este día.
+                                                    Esta acción cambiará el estado de la falta a "Asiste", pero **no eliminará la justificación** si el alumno ya ha enviado una. ¿Deseas continuar?
                                                 </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                                 <AlertDialogAction onClick={() => handleDelete(record)}>
-                                                    Eliminar
+                                                    Eliminar Falta
                                                 </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
