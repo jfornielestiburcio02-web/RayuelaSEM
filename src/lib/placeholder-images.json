@@ -1,0 +1,22 @@
+{
+  "placeholderImages": [
+    {
+      "id": "gestion-sem",
+      "description": "Botón para acceder a la gestión SEM",
+      "imageUrl": "https://i.ibb.co/fbVrFv3/Seguimiento-SEM-2-1.png",
+      "imageHint": "management dashboard"
+    },
+    {
+      "id": "seguimiento-sem",
+      "description": "Botón para acceder al seguimiento SEM",
+      "imageUrl": "https://i.ibb.co/pB2ZcHTT/Seguimiento-SEM-1-1.png",
+      "imageHint": "tracking chart"
+    },
+    {
+      "id": "direccion",
+      "description": "Botón para acceder al panel de dirección",
+      "imageUrl": "https://i.ibb.co/q3XCbKfZ/3-1.png",
+      "imageHint": "direction analytics"
+    }
+  ]
+}

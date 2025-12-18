@@ -1,0 +1,485 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's username."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "nombre": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "apellidos": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "dni": {
+          "type": "string",
+          "description": "The user's DNI."
+        },
+        "role": {
+          "type": "array",
+          "description": "The roles of the user.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SEM",
+              "Instructor",
+              "Instructor Gestion",
+              "Dirección",
+              "Facciones Legales"
+            ]
+          }
+        },
+        "fotoUrl": {
+          "type": "string",
+          "description": "URL to the user's profile picture."
+        },
+        "rolProfesional": {
+          "type": "string",
+          "description": "The professional role of the user.",
+          "enum": [
+            "Médico",
+            "Enfermero",
+            "TES"
+          ]
+        },
+        "rango": {
+          "type": "string",
+          "description": "The rank of the user.",
+          "enum": [
+            "Comandant",
+            "SAO",
+            "Dir Área",
+            "Dir Metge",
+            "Dir Enf.",
+            "Dir TES",
+            "Cap´d area",
+            "Cap territorial",
+            "Sotcap Territorial",
+            "Cap´d operaciones",
+            "Coord. Clinico. Op."
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "role"
+      ]
+    },
+    "Asistencia": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Asistencia",
+      "type": "object",
+      "description": "Represents an attendance record for a user on a specific date.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Composite key: {userId}_{date}"
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user (student)."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "The date of the attendance record (YYYY-MM-DD)."
+        },
+        "status": {
+          "type": "string",
+          "description": "The attendance status.",
+          "enum": [
+            "asiste",
+            "injustificada",
+            "retraso",
+            "justificada"
+          ]
+        },
+        "recordedBy": {
+          "type": "string",
+          "description": "The UID of the instructor who recorded the attendance."
+        },
+        "justificacion": {
+          "type": "object",
+          "description": "Justification for the absence, if any.",
+          "properties": {
+            "motivo": {
+              "type": "string"
+            },
+            "descripcion": {
+              "type": "string"
+            }
+          }
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The exact date and time the attendance was recorded."
+        },
+        "feedback": {
+          "type": "string",
+          "description": "Feedback on student participation.",
+          "enum": [
+            "positivo",
+            "negativo"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "date",
+        "status",
+        "recordedBy"
+      ]
+    },
+    "Informe": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Informe",
+      "type": "object",
+      "description": "Represents a patient report created by a SEM user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the report."
+        },
+        "nombrePaciente": {
+          "type": "string",
+          "description": "Name of the patient."
+        },
+        "edadEstimada": {
+          "type": "number",
+          "description": "Estimated age of the patient."
+        },
+        "procedimientos": {
+          "type": "string",
+          "description": "Procedures performed."
+        },
+        "estado": {
+          "type": "string",
+          "description": "Current status of the patient."
+        },
+        "descripcion": {
+          "type": "string",
+          "description": "Detailed description of the case."
+        },
+        "dni": {
+          "type": "string",
+          "description": "DNI of the patient (optional)."
+        },
+        "creadoPor": {
+          "type": "string",
+          "description": "UID of the SEM user who created the report."
+        },
+        "creadoEn": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the report was created."
+        }
+      },
+      "required": [
+        "id",
+        "nombrePaciente",
+        "edadEstimada",
+        "procedimientos",
+        "estado",
+        "descripcion",
+        "creadoPor",
+        "creadoEn"
+      ]
+    },
+    "Servicio": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Servicio",
+      "type": "object",
+      "description": "Represents a service shift for a SEM user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the service record."
+        },
+        "semUserId": {
+          "type": "string",
+          "description": "The UID of the SEM user who performed the service."
+        },
+        "semUserName": {
+          "type": "string",
+          "description": "The name of the SEM user."
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the service started."
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the service ended (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "semUserId",
+        "semUserName",
+        "startTime"
+      ]
+    },
+    "Anuncio": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Anuncio",
+      "type": "object",
+      "description": "Represents an announcement sent by an instructor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the announcement."
+        },
+        "descripcion": {
+          "type": "string",
+          "description": "A brief description or title for the announcement."
+        },
+        "detalle": {
+          "type": "string",
+          "description": "The full content/details of the announcement."
+        },
+        "para": {
+          "type": "array",
+          "description": "List of recipient user IDs. Can contain 'TODOS' for a broadcast to all SEM users.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "creadoPor": {
+          "type": "string",
+          "description": "UID of the instructor who created the announcement."
+        },
+        "creadoEn": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the announcement was created."
+        }
+      },
+      "required": [
+        "id",
+        "descripcion",
+        "detalle",
+        "para",
+        "creadoPor",
+        "creadoEn"
+      ]
+    },
+    "ExpedienteAbsentista": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expediente Absentista",
+      "type": "object",
+      "description": "Represents an absenteeism record for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the record."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user the record belongs to."
+        },
+        "userName": {
+          "type": "string",
+          "description": "The name of the user."
+        },
+        "motivo": {
+          "type": "string",
+          "description": "The reason for opening the record."
+        },
+        "numeroFaltas": {
+          "type": "number",
+          "description": "The number of absences at the time of creation."
+        },
+        "creadoPor": {
+          "type": "string",
+          "description": "UID of the instructor who created the record."
+        },
+        "creadoEn": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the record was created."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "userName",
+        "motivo",
+        "numeroFaltas",
+        "creadoPor",
+        "creadoEn"
+      ]
+    },
+    "Expulsion": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expulsion",
+      "type": "object",
+      "description": "Represents a request to expel a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the expulsion request."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user to be expelled."
+        },
+        "userName": {
+          "type": "string",
+          "description": "The name of the user to be expelled."
+        },
+        "motivo": {
+          "type": "string",
+          "description": "The reason for the expulsion request."
+        },
+        "solicitadoPor": {
+          "type": "string",
+          "description": "UID of the user who requested the expulsion."
+        },
+        "solicitadoEn": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the request was created."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "userName",
+        "motivo",
+        "solicitadoPor",
+        "solicitadoEn"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile data. Access is restricted to the user with the matching userId. Includes the userId as part of the path for secure and direct data access based on authentication.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching their Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/asistencia/{asistenciaId}",
+        "definition": {
+          "entityName": "Asistencia",
+          "schema": {
+            "$ref": "#/backend/entities/Asistencia"
+          },
+          "description": "Stores daily attendance records for students. The document ID is a composite of userId and date for quick lookups.",
+          "params": [
+            {
+              "name": "asistenciaId",
+              "description": "The composite ID for the attendance record, e.g., {userId}_{YYYY-MM-DD}."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/informes/{informeId}",
+        "definition": {
+          "entityName": "Informe",
+          "schema": {
+            "$ref": "#/backend/entities/Informe"
+          },
+          "description": "Stores patient reports created by SEM users. Instructors can read these reports.",
+          "params": [
+            {
+              "name": "informeId",
+              "description": "The unique identifier for the report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/servicios/{servicioId}",
+        "definition": {
+          "entityName": "Servicio",
+          "schema": {
+            "$ref": "#/backend/entities/Servicio"
+          },
+          "description": "Stores service shift records for SEM users. Instructors can read these records.",
+          "params": [
+            {
+              "name": "servicioId",
+              "description": "The unique identifier for the service shift record."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/anuncios/{anuncioId}",
+        "definition": {
+          "entityName": "Anuncio",
+          "schema": {
+            "$ref": "#/backend/entities/Anuncio"
+          },
+          "description": "Stores announcements from instructors to SEM users. SEM users can read announcements targeted to them.",
+          "params": [
+            {
+              "name": "anuncioId",
+              "description": "The unique identifier for the announcement."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/expedientesAbsentistas/{expedienteId}",
+        "definition": {
+          "entityName": "ExpedienteAbsentista",
+          "schema": {
+            "$ref": "#/backend/entities/ExpedienteAbsentista"
+          },
+          "description": "Stores absenteeism records for users with repeated absences.",
+          "params": [
+            {
+              "name": "expedienteId",
+              "description": "The unique identifier for the absenteeism record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This Firestore data structure prioritizes security and scalability for the Acceso Seguro application, focusing on user authentication and attendance tracking. The structure now includes two primary collections: `/users` and `/asistencia`. The `/users/{userId}` path ensures user data is isolated and secure. The `/asistencia/{asistenciaId}` collection is designed for efficient attendance management, using a composite key `userId_date` to allow instructors to quickly write and retrieve attendance status for a specific student on a specific day, preventing duplicates and simplifying queries."
+  }
+}
+
+    
