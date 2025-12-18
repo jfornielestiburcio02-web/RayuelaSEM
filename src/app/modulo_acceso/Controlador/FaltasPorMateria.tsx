@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { deleteField } from 'firebase/firestore';
 
 type UserDoc = {
   id: string;
@@ -41,14 +42,14 @@ type AsistenciaDoc = {
     id: string; // userId_date
     userId: string;
     date: string; // YYYY-MM-DD
-    status: AsistenciaStatus;
+    status?: AsistenciaStatus;
     recordedBy: string;
     timestamp?: any;
     justificacion?: Justificacion;
     feedback?: FeedbackStatus;
 }
 
-const statusCycle: AsistenciaStatus[] = ['asiste', 'injustificada', 'retraso'];
+const statusCycle: AsistenciaStatus[] = ['injustificada', 'retraso']; // 'asiste' is handled by deletion
 
 const statusConfig: Record<AsistenciaStatus, { text: string; className: string }> = {
     asiste: { text: 'Asiste', className: 'bg-gray-300 hover:bg-gray-400 text-black' },
@@ -119,10 +120,8 @@ export default function FaltasPorMateria() {
   }, [firestore, dateKey]);
 
 
-  const getStatusForUser = (userId: string): AsistenciaStatus => {
-    const record = attendanceData.get(userId);
-    if (!record) return 'asiste';
-    return record.status;
+  const getStatusForUser = (userId: string): AsistenciaStatus | undefined => {
+    return attendanceData.get(userId)?.status;
   }
   
   const getFeedbackForUser = (userId: string): FeedbackStatus | undefined => {
@@ -134,25 +133,30 @@ export default function FaltasPorMateria() {
   }
 
   const handleStatusChange = async (userId: string) => {
-    if (!dateKey || !firestore || !instructor) {
-        return;
-    }
+    if (!dateKey || !firestore || !instructor) return;
     
     const record = attendanceData.get(userId);
-    const currentStatus = record?.status || 'asiste';
+    const currentStatus = record?.status;
 
     if (currentStatus === 'falta_injustificada_completa' || currentStatus === 'falta_justificada_completa' || currentStatus === 'justificada') {
         return; // Don't cycle if it's a full day absence set by management or already justified
     }
 
-    const currentIndex = statusCycle.indexOf(currentStatus);
-    const nextIndex = (currentIndex + 1) % statusCycle.length;
-    const nextStatus = statusCycle[nextIndex];
-
     const asistenciaId = `${userId}_${dateKey}`;
     const asistenciaRef = doc(firestore, 'asistencia', asistenciaId);
 
-    try {
+    const currentIndex = currentStatus ? statusCycle.indexOf(currentStatus) : -1;
+    const nextIndex = (currentIndex + 1) % statusCycle.length;
+    
+    // If we've cycled through all states, it means we go back to 'asiste' which means deleting the record or status field.
+    if (currentIndex === statusCycle.length - 1) {
+         if (record?.justificacion || record?.feedback) {
+            await updateDoc(asistenciaRef, { status: deleteField() });
+        } else {
+            await deleteDoc(asistenciaRef);
+        }
+    } else {
+        const nextStatus = statusCycle[nextIndex];
         const dataToSet: Partial<AsistenciaDoc> = {
             status: nextStatus,
             recordedBy: instructor.uid,
@@ -161,21 +165,7 @@ export default function FaltasPorMateria() {
             userId: userId,
             date: dateKey,
         };
-
         await setDoc(asistenciaRef, dataToSet, { merge: true });
-
-        // Check if the document can be deleted.
-        const updatedDoc = await getDoc(asistenciaRef);
-        if (updatedDoc.exists()) {
-            const data = updatedDoc.data();
-            // A record is 'empty' if status is 'asiste' and it has no other relevant info.
-            const isEmpty = data.status === 'asiste' && !data.feedback && !data.justificacion;
-            if (isEmpty) {
-                await deleteDoc(asistenciaRef);
-            }
-        }
-    } catch (error: any) {
-        console.error("Error al guardar la asistencia:", error);
     }
   };
 
@@ -184,7 +174,8 @@ export default function FaltasPorMateria() {
 
     const asistenciaId = `${userId}_${dateKey}`;
     const asistenciaRef = doc(firestore, 'asistencia', asistenciaId);
-    const currentFeedback = getFeedbackForUser(userId);
+    const record = attendanceData.get(userId);
+    const currentFeedback = record?.feedback;
 
     const newFeedback = currentFeedback === feedback ? undefined : feedback;
 
@@ -196,14 +187,14 @@ export default function FaltasPorMateria() {
         };
         
         if (docSnap.exists()) {
-            await updateDoc(asistenciaRef, dataToSet);
+            await updateDoc(asistenciaRef, { feedback: newFeedback ? newFeedback : deleteField() });
         } else {
+             if (!newFeedback) return; // No need to create a doc just to remove feedback
             dataToSet = {
                 ...dataToSet,
                 id: asistenciaId,
                 userId: userId,
                 date: dateKey,
-                status: getStatusForUser(userId) || 'asiste',
                 recordedBy: instructor.uid,
                 timestamp: serverTimestamp()
             };
@@ -213,7 +204,8 @@ export default function FaltasPorMateria() {
         const updatedDoc = await getDoc(asistenciaRef);
         if (updatedDoc.exists()) {
             const data = updatedDoc.data();
-            if(data.status === 'asiste' && data.feedback === undefined && !data.justificacion) {
+            // If the document has no status, no feedback, and no justification, it's empty and can be deleted.
+            if(!data.status && !data.feedback && !data.justificacion) {
                 await deleteDoc(asistenciaRef);
             }
         }
@@ -312,7 +304,7 @@ export default function FaltasPorMateria() {
             <TooltipProvider>
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {semUsers && semUsers.map(user => {
-                    const userStatus = getStatusForUser(user.id);
+                    const userStatus = getStatusForUser(user.id) || 'asiste';
                     const config = statusConfig[userStatus];
                     const justificacion = getJustificacionForUser(user.id);
                     const isFullDayAbsence = userStatus === 'falta_injustificada_completa' || userStatus === 'falta_justificada_completa';

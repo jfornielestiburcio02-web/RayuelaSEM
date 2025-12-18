@@ -78,9 +78,9 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
         const docSnap = await getDoc(docRef);
         if (docSnap.exists() && docSnap.data().justificacion) {
             // If there's a justification, don't delete the doc.
-            // Reset the status and remove the feedback. Keep the justification.
+            // Just remove the status and feedback, keeping the justification.
             await updateDoc(docRef, {
-                status: 'asiste',
+                status: deleteField(),
                 feedback: deleteField() 
             });
             toast({ title: 'Falta eliminada', description: `Se ha eliminado la falta, pero la justificación del alumno se ha mantenido.` });
@@ -105,8 +105,9 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
 
   const filteredAndSortedRecords = useMemo(() => {
     if (!faltas) return [];
+    // Show record if it has a status that is not 'asiste'
     return faltas
-        .filter(record => record.status !== 'asiste' || record.justificacion)
+        .filter(record => record.status && record.status !== 'asiste')
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [faltas]);
 
@@ -147,7 +148,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                     </TableHeader>
                     <TableBody>
                         {filteredAndSortedRecords.map((record) => {
-                            if (record.status === 'asiste' && !record.justificacion) return null;
+                            if (!record.status || record.status === 'asiste') return null;
 
                             const displayInfo = statusDisplay[record.status] || { text: record.status, variant: 'outline' };
                             const isFullDayAbsence = record.status === 'falta_injustificada_completa' || record.status === 'falta_justificada_completa';
@@ -162,34 +163,32 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                     </TableCell>
                                     <TableCell>{record.justificacion?.motivo || '-'}</TableCell>
                                     <TableCell className="text-right">
-                                       {record.status !== 'asiste' && (
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="icon" 
-                                                        title="Eliminar registro"
-                                                        disabled={isFullDayAbsence}
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                       Esta acción eliminará el registro de falta para este día. Si el alumno ha enviado una justificación, esta se conservará.
-                                                    </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(record)}>
-                                                        Eliminar
-                                                    </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                       )}
+                                       <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    title="Eliminar registro"
+                                                    disabled={isFullDayAbsence}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                   Esta acción eliminará el registro de falta para este día. Si el alumno ha enviado una justificación, esta se conservará, pero la falta será eliminada.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(record)}>
+                                                    Eliminar
+                                                </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </TableCell>
                                 </TableRow>
                             );
