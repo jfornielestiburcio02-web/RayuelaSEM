@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { deleteField } from 'firebase/firestore';
 
 type UserDoc = {
   id: string;
@@ -92,7 +93,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
             // If there's a justification, reset status and feedback but keep justification
             await updateDoc(docRef, {
                 status: 'asiste',
-                feedback: null // or deleteField() if you prefer
+                feedback: deleteField()
             });
         } else {
             // If there's no justification, we can delete the whole document
@@ -155,7 +156,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                             const displayInfo = statusDisplay[record.status] || { text: record.status, variant: 'outline' };
                             const isFullDayAbsence = record.status === 'falta_injustificada_completa' || record.status === 'falta_justificada_completa';
                             
-                            // Do not show 'asiste' records in this table
+                            // Do not show 'asiste' records in this table unless they have a justification
                             if (record.status === 'asiste' && !record.justificacion) {
                                 return null;
                             }
@@ -176,7 +177,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                                     variant="ghost" 
                                                     size="icon" 
                                                     title="Eliminar registro"
-                                                    disabled={isFullDayAbsence || record.status === 'asiste'}
+                                                    disabled={isFullDayAbsence}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
@@ -185,7 +186,7 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                                 <AlertDialogHeader>
                                                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    Esta acción cambiará el estado de la falta a "Asiste", pero **no eliminará la justificación** si el alumno ya ha enviado una. ¿Deseas continuar?
+                                                    Esta acción eliminará la falta. Si el alumno ha enviado una justificación, esta se conservará pero la falta desaparecerá del historial. Si no hay justificación, el registro del día se borrará por completo. ¿Deseas continuar?
                                                 </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
