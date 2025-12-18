@@ -90,17 +90,18 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
         const hasJustification = !!currentData.justificacion;
 
         if (hasJustification) {
-            // If there's a justification, reset status and feedback but keep justification
+            // If there's a justification, change status to 'justificada' and remove feedback
+            // This 'accepts' the student's justification by removing the penalty
             await updateDoc(docRef, {
-                status: 'asiste',
+                status: 'justificada',
                 feedback: deleteField()
             });
+            toast({ title: 'Falta Justificada', description: `Se ha aceptado la justificación del alumno para el ${formatDate(record.date)}.` });
         } else {
             // If there's no justification, we can delete the whole document
             await deleteDoc(docRef);
+            toast({ title: 'Registro Eliminado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
         }
-
-        toast({ title: 'Registro actualizado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
 
     } catch (error) {
         console.error("Error al modificar el registro:", error);
@@ -186,13 +187,13 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                                 <AlertDialogHeader>
                                                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    Esta acción eliminará la falta. Si el alumno ha enviado una justificación, esta se conservará pero la falta desaparecerá del historial. Si no hay justificación, el registro del día se borrará por completo. ¿Deseas continuar?
+                                                   Esta acción eliminará la falta. Si el alumno ha enviado una justificación, esta se conservará y la falta pasará a estar justificada. Si no hay justificación, el registro del día se borrará por completo. ¿Deseas continuar?
                                                 </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                                 <AlertDialogAction onClick={() => handleDelete(record)}>
-                                                    Eliminar Falta
+                                                    Aceptar
                                                 </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>

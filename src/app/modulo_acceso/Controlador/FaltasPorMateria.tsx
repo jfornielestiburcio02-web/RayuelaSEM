@@ -141,8 +141,8 @@ export default function FaltasPorMateria() {
     const record = attendanceData.get(userId);
     const currentStatus = record?.status || 'asiste';
 
-    if (currentStatus === 'falta_injustificada_completa' || currentStatus === 'falta_justificada_completa') {
-        return; // Don't cycle if it's a full day absence set by management
+    if (currentStatus === 'falta_injustificada_completa' || currentStatus === 'falta_justificada_completa' || currentStatus === 'justificada') {
+        return; // Don't cycle if it's a full day absence set by management or already justified
     }
 
     const currentIndex = statusCycle.indexOf(currentStatus);
@@ -317,7 +317,7 @@ export default function FaltasPorMateria() {
                     const justificacion = getJustificacionForUser(user.id);
                     const isFullDayAbsence = userStatus === 'falta_injustificada_completa' || userStatus === 'falta_justificada_completa';
                     const feedback = getFeedbackForUser(user.id);
-                    const isFeedbackDisabled = userStatus === 'injustificada';
+                    const isFeedbackDisabled = userStatus === 'injustificada' || userStatus === 'justificada';
                     
                     return (
                         <Card key={user.id} className="overflow-hidden shadow-sm flex flex-col">
@@ -347,14 +347,14 @@ export default function FaltasPorMateria() {
                                         <Button
                                             onClick={() => handleStatusChange(user.id)}
                                             className={cn("w-full text-xs px-2 h-8 transition-all", config.className)}
-                                            disabled={isFullDayAbsence}
+                                            disabled={isFullDayAbsence || userStatus === 'justificada'}
                                         >
                                             {config.text}
                                         </Button>
                                     )
                                 )}
 
-                                {!isFullDayAbsence && (
+                                {!isFullDayAbsence && userStatus !== 'justificada' && (
                                     <div className={cn(
                                         "flex gap-4 pt-1",
                                         isFeedbackDisabled && "opacity-40 pointer-events-none"
