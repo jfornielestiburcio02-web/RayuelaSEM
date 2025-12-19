@@ -196,6 +196,10 @@ function ControladorContent() {
     if (view === 'direccion') setDireccionActiveView('configuracion');
     if (view === 'instructor') setInstructorActiveView('configuracion');
     if (view === 'sem') setSemActiveView('configuracion');
+    if (view === 'ciudadano') {
+        // Special case for ciudadano since it doesn't have a sidebar/complex state
+        // One option is a state for it, or just render the component directly
+    }
   }
 
   const renderDireccionContent = () => {
@@ -452,16 +456,18 @@ function ControladorContent() {
         );
       case 'ciudadano':
         return (
-          <main
-            className="flex min-h-screen flex-col items-center justify-center p-4 bg-cover bg-center space-y-8"
-            style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
-            aria-label="Fondo abstracto con formas geométricas y colores pastel."
-          >
-            <div className="bg-white/90 dark:bg-black/80 p-8 rounded-xl shadow-lg text-center">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes Futuras</h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">Este espacio está reservado para futuras funcionalidades.</p>
+          <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
+            <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
+            <div className="flex-grow flex flex-col items-center justify-center p-4 bg-cover bg-center space-y-8"
+              style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
+              aria-label="Fondo abstracto con formas geométricas y colores pastel."
+            >
+              <div className="bg-white/90 dark:bg-black/80 p-8 rounded-xl shadow-lg text-center">
+                  <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes Futuras</h1>
+                  <p className="text-gray-600 dark:text-gray-300 mt-2">Este espacio está reservado para futuras funcionalidades.</p>
+              </div>
             </div>
-          </main>
+          </div>
         );
       default:
         return (
