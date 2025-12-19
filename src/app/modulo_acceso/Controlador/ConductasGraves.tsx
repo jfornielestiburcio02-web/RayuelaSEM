@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import RegistroConductaForm from './RegistroConductaForm';
+import DialogoHistorialConducta from './DialogoHistorialConducta';
 
 type UserDoc = {
   id: string;
@@ -24,6 +25,8 @@ export default function ConductasGraves() {
   const firestore = useFirestore();
   const [selectedUser, setSelectedUser] = useState<UserDoc | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
 
   const usersQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'users'), where('role', 'array-contains', 'SEM')) : null),
@@ -51,11 +54,21 @@ export default function ConductasGraves() {
     setSelectedUser(user);
     setIsFormOpen(true);
   };
+  
+  const handleViewHistory = (user: UserDoc) => {
+    setSelectedUser(user);
+    setIsHistoryOpen(true);
+  }
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedUser(null);
   };
+  
+  const handleCloseHistory = () => {
+    setIsHistoryOpen(false);
+    setSelectedUser(null);
+  }
   
   const isLoading = isLoadingUsers || isLoadingConductas;
 
@@ -92,7 +105,7 @@ export default function ConductasGraves() {
                             <DropdownMenuItem onClick={() => handleNewRegistro(user)}>
                               Nuevo registro
                             </DropdownMenuItem>
-                            <DropdownMenuItem>Ver registros</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewHistory(user)}>Ver registros</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -122,6 +135,17 @@ export default function ConductasGraves() {
             </DialogHeader>
             {selectedUser && (
                 <RegistroConductaForm user={selectedUser} onFinished={handleCloseForm} />
+            )}
+        </DialogContent>
+      </Dialog>
+      
+       <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+        <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>Historial de Conducta de {selectedUser?.username}</DialogTitle>
+            </DialogHeader>
+            {selectedUser && (
+                <DialogoHistorialConducta userId={selectedUser.id} />
             )}
         </DialogContent>
       </Dialog>
