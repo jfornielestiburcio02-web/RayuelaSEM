@@ -42,6 +42,8 @@ import FaltasAsistenciaFacciones from './FaltasAsistenciaFacciones';
 import ConductaFacciones from './ConductaFacciones';
 import ExpulsarUsuarioForm from './ExpulsarUsuarioForm';
 import SecretariaMain from './SecretariaMain';
+import SecretariaSidebar from './SecretariaSidebar';
+import SecretariaTramites from './SecretariaTramites';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -108,6 +110,8 @@ function ControladorContent() {
   
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
 
+  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites'>('tramites');
+
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
 
@@ -160,6 +164,8 @@ function ControladorContent() {
         setGestionSemActiveView('main');
     } else if (view === 'facciones_legales') {
         setFaccionesLegalesActiveView('expedientesAbsentistas');
+    } else if (view === 'secretaria') {
+        setSecretariaActiveView('tramites');
     }
   }, [view]);
 
@@ -189,6 +195,10 @@ function ControladorContent() {
   
   const handleFaccionesLegalesSidebarSelection = (option: 'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada') => {
       setFaccionesLegalesActiveView(option);
+  }
+
+  const handleSecretariaSidebarSelection = (option: 'tramites') => {
+    setSecretariaActiveView(option);
   }
 
 
@@ -328,6 +338,15 @@ function ControladorContent() {
     }
 }
 
+const renderSecretariaContent = () => {
+  switch (secretariaActiveView) {
+    case 'tramites':
+      return <SecretariaTramites />;
+    default:
+      return <SecretariaMain />;
+  }
+};
+
 
   const renderContent = () => {
     if (isUserLoading || isUserDataLoading || !user || !userData) {
@@ -446,9 +465,10 @@ function ControladorContent() {
             <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
                 <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
                 <div className="flex flex-grow overflow-hidden">
+                    <SecretariaSidebar onSelectOption={handleSecretariaSidebarSelection} />
                     <div className="flex-grow flex flex-col">
                         <div className="flex-grow overflow-auto">
-                            <SecretariaMain />
+                            {renderSecretariaContent()}
                         </div>
                     </div>
                 </div>

@@ -10,11 +10,11 @@ export default function SecretariaMain() {
                 <CardHeader>
                     <CardTitle className="text-3xl font-bold">Panel de Secretaría</CardTitle>
                     <CardDescription className="text-lg text-muted-foreground mt-2">
-                        Bienvenido al panel de Secretaría. Las funcionalidades para esta sección están en desarrollo.
+                        Bienvenido al panel de Secretaría. Selecciona una opción del menú para comenzar.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Próximamente podrás gestionar tareas administrativas desde aquí.</p>
+                    <p>Próximamente podrás gestionar más tareas administrativas desde aquí.</p>
                 </CardContent>
             </Card>
         </div>
