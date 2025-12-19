@@ -24,6 +24,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteField } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
+
 
 type UserDoc = {
   id: string;
@@ -77,15 +79,12 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
     try {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists() && docSnap.data().justificacion) {
-            // If there's a justification, don't delete the doc.
-            // Just remove the status and feedback, keeping the justification.
             await updateDoc(docRef, {
                 status: deleteField(),
                 feedback: deleteField() 
             });
             toast({ title: 'Falta eliminada', description: `Se ha eliminado la falta, pero la justificación del alumno se ha mantenido.` });
         } else {
-            // If there's no justification, delete the whole record.
             await deleteDoc(docRef);
             toast({ title: 'Registro Eliminado', description: `Se ha eliminado la falta del ${formatDate(record.date)}.` });
         }
@@ -157,9 +156,20 @@ export default function HistorialFaltasAlumno({ user, onBack }: HistorialFaltasA
                                 <TableRow key={record.id}>
                                     <TableCell className="font-medium">{formatDate(record.date)}</TableCell>
                                     <TableCell>
-                                        <Badge variant={displayInfo.variant}>
-                                            {displayInfo.text}
-                                        </Badge>
+                                        {isFullDayAbsence ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
+                                                    <span className="text-xs font-bold text-black">
+                                                        {record.status === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
+                                            </div>
+                                        ) : (
+                                            <Badge variant={displayInfo.variant}>
+                                                {displayInfo.text}
+                                            </Badge>
+                                        )}
                                     </TableCell>
                                     <TableCell>{record.justificacion?.motivo || '-'}</TableCell>
                                     <TableCell className="text-right">
