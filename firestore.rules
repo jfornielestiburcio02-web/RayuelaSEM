@@ -35,5 +35,10 @@ service cloud.firestore {
     match /expedientesAbsentistas/{expedienteId} {
       allow read, write: if true;
     }
+
+    // TRAMITES ACTIVOS COLLECTION - PUBLIC ACCESS
+    match /tramitesActivos/{tramiteId} {
+      allow read, write: if true;
+    }
   }
 }
