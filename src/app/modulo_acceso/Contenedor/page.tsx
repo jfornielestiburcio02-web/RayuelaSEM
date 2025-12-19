@@ -140,7 +140,7 @@ export default function ContenedorPage() {
     availableSections.push(
       <Link href="/modulo_acceso/Controlador?view=direccion" passHref key="direccion">
         <Image
-          src="https://i.ibb.co/q3XCbKfZ/3-1.png"
+          src="https://i.ibb.co/SDvZjJRp/Seguimiento-SEM-3-1-1.png"
           alt="Dirección"
           width={300}
           height={200}
