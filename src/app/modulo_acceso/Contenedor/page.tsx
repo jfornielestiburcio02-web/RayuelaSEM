@@ -24,11 +24,9 @@ export default function ContenedorPage() {
   const { data: userData, isLoading: isUserDataLoading } = useDoc<UserProfile>(userDocRef);
 
   useEffect(() => {
-    // First, wait for the user loading to finish.
     if (isUserLoading) {
-      return; // Do nothing until we know if a user is logged in or not.
+      return;
     }
-    // If loading is finished and there's no user, redirect to login.
     if (!user) {
       router.push('/modulo_acceso/identificacion');
     }
@@ -36,7 +34,6 @@ export default function ContenedorPage() {
 
   const isLoading = isUserLoading || isUserDataLoading;
 
-  // While loading, show a spinner. This also prevents content flashing.
   if (isLoading) {
     return (
       <main
@@ -54,8 +51,6 @@ export default function ContenedorPage() {
     );
   }
 
-  // If loading is complete, but there is still no user (e.g., after the effect runs), we also can show a loading or redirect.
-  // This check is a safeguard. The useEffect should handle the redirect.
   if (!user) {
      return (
       <main
@@ -79,8 +74,8 @@ export default function ContenedorPage() {
   const canSeeSeguimientoSEM = userRoles.includes('SEM') || userRoles.includes('Instructor');
   const canSeeDireccion = userRoles.includes('Dirección');
   const canSeeFaccionesLegales = userRoles.includes('Facciones Legales');
-  const isCiudadanoOnly = userRoles.length === 1 && userRoles.includes('Ciudadano');
   const canSeeSecretaria = userRoles.includes('Secretaría');
+  const isCiudadanoOnly = userRoles.length === 1 && userRoles.includes('Ciudadano');
 
   const seguimientoHref = () => {
     if (userRoles.includes('Instructor')) {
@@ -164,7 +159,7 @@ export default function ContenedorPage() {
       </Link>
     );
   }
-    if (canSeeSecretaria) {
+  if (canSeeSecretaria) {
     availableSections.push(
       <Link href="/modulo_acceso/Controlador?view=secretaria" passHref key="secretaria">
         <Image
