@@ -41,6 +41,7 @@ import FaccionesLegalesSidebar from './FaccionesLegalesSidebar';
 import FaltasAsistenciaFacciones from './FaltasAsistenciaFacciones';
 import ConductaFacciones from './ConductaFacciones';
 import ExpulsarUsuarioForm from './ExpulsarUsuarioForm';
+import SecretariaMain from './SecretariaMain';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -50,6 +51,7 @@ const roleToViewMap: Record<string, string> = {
     'Dirección': 'direccion',
     'Facciones Legales': 'facciones_legales',
     'Ciudadano': 'ciudadano',
+    'Secretaría': 'secretaria',
 };
 
 const viewToRoleMap: Record<string, string> = {
@@ -60,6 +62,7 @@ const viewToRoleMap: Record<string, string> = {
     'responsable_faccion': 'Dirección', // Special case
     'facciones_legales': 'Facciones Legales',
     'ciudadano': 'Ciudadano',
+    'secretaria': 'Secretaría',
 };
 
 type UserProfile = {
@@ -161,7 +164,7 @@ function ControladorContent() {
   }, [view]);
 
 
-  const handleSubRoleClick = (subRole: 'Actividades Extr.' | 'Jefaturas' | 'Secretaría' | 'main') => {
+  const handleSubRoleClick = (subRole: 'Actividades Extr.' | 'Jefaturas' | 'main') => {
     if (subRole === 'main') {
       setDireccionActiveView('main');
       setSubRoleView('');
@@ -429,6 +432,19 @@ function ControladorContent() {
                     <div className="flex-grow flex flex-col">
                         <div className="flex-grow overflow-auto">
                             {renderFaccionesLegalesContent()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+      case 'secretaria':
+        return (
+            <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
+                <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
+                <div className="flex flex-grow overflow-hidden">
+                    <div className="flex-grow flex flex-col">
+                        <div className="flex-grow overflow-auto">
+                            <SecretariaMain />
                         </div>
                     </div>
                 </div>

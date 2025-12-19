@@ -27,7 +27,7 @@ type UserProfile = {
 
 type DireccionHeaderProps = {
     currentView: string;
-    onSelectSubRole: (subRole: 'Actividades Extr.' | 'Jefaturas' | 'Secretaría' | 'main') => void;
+    onSelectSubRole: (subRole: 'Actividades Extr.' | 'Jefaturas' | 'main') => void;
     onOpenConfig: () => void;
 };
 
@@ -38,6 +38,7 @@ const viewToRoleName: Record<string, string> = {
     'direccion': 'Dirección',
     'responsable_faccion': 'Responsable Faccion',
     'facciones_legales': 'Facciones Legales',
+    'secretaria': 'Secretaría',
 }
 
 export default function DireccionHeader({ currentView, onSelectSubRole, onOpenConfig }: DireccionHeaderProps) {
@@ -166,7 +167,15 @@ export default function DireccionHeader({ currentView, onSelectSubRole, onOpenCo
                       <span className='text-xs'>Legales</span>
                   </Button>
               )
-          }
+            }
+            if (role === 'Secretaría') {
+                return (
+                     <Button key={role} variant="ghost" className="text-center h-auto py-1 flex flex-col items-center gap-1" onClick={() => handleRoleChange('secretaria')}>
+                        <Image src="https://i.ibb.co/gZvGkphp/Dise-o-sin-t-tulo-14-1.png" alt="Secretaría Icon" width={32} height={32} />
+                        <span className='text-xs'>Secretaría</span>
+                    </Button>
+                )
+            }
             return null;
         })}
         {hasDireccionRole && viewToRoleName[currentView] !== 'Responsable Faccion' && (
@@ -186,10 +195,6 @@ export default function DireccionHeader({ currentView, onSelectSubRole, onOpenCo
                 <Button variant="ghost" className="h-auto py-1 flex flex-col gap-1 text-center" onClick={() => onSelectSubRole('Jefaturas')}>
                     <Image src="https://i.ibb.co/v4HF63Dc/Dise-o-sin-t-tulo-13-1.png" alt="Jefaturas Icon" width={32} height={32} />
                     <span className='text-xs leading-tight'>Jefaturas<br/>(Instr)</span>
-                </Button>
-                <Button variant="ghost" className="h-auto py-1 flex flex-col gap-1 text-center" onClick={() => onSelectSubRole('Secretaría')}>
-                    <Image src="https://i.ibb.co/gZvGkphp/Dise-o-sin-t-tulo-14-1.png" alt="Secretaría Icon" width={32} height={32} />
-                    <span className='text-xs leading-tight'>Secretaría</span>
                 </Button>
             </>
         )}

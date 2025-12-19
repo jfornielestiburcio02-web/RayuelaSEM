@@ -22,7 +22,7 @@ import { useAuth, useFirestore } from "@/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
-const rolesDisponibles = ["SEM", "Instructor", "Instructor Gestion", "Dirección", "Facciones Legales", "Ciudadano"] as const;
+const rolesDisponibles = ["SEM", "Instructor", "Instructor Gestion", "Dirección", "Facciones Legales", "Ciudadano", "Secretaría"] as const;
 
 const formSchema = z.object({
   nombre: z.string().min(1, "El nombre es obligatorio."),
