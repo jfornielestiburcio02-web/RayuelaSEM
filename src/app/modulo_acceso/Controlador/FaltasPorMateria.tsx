@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, query, where, doc, setDoc, deleteField, onSnapshot, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, deleteField, onSnapshot, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -315,14 +315,14 @@ export default function FaltasPorMateria() {
                                 <p className="font-semibold text-sm flex-1 pt-2">{user.username}</p>
                                 
                                 {isFullDayAbsence ? (
-                                    <div className="flex items-center justify-center gap-2 h-8 w-full">
-                                        <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
-                                            <span className="font-bold text-black text-xs">
-                                                {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
-                                            </span>
-                                        </div>
-                                        <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
-                                    </div>
+                                     <div className="flex items-center justify-center gap-2 h-8 w-full">
+                                         <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
+                                             <span className="font-bold text-xs text-black">
+                                                 {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
+                                             </span>
+                                         </div>
+                                         <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
+                                     </div>
                                 ) : (
                                     config && (
                                         <Button
