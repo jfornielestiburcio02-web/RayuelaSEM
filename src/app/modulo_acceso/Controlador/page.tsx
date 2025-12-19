@@ -26,7 +26,7 @@ import MisFeedbacks from './MisFeedbacks';
 import { Button } from '@/components/ui/button';
 import PersonalAbsentista from './PersonalAbsentista';
 import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
-import { doc, collection } from 'firebase/firestore';
+import { doc, collection, query, where } from 'firebase/firestore';
 import ConfiguracionUsuario from './ConfiguracionUsuario';
 import {
   AlertDialog,
@@ -45,6 +45,7 @@ import SecretariaMain from './SecretariaMain';
 import SecretariaSidebar from './SecretariaSidebar';
 import SecretariaTramites from './SecretariaTramites';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import InscripcionTramiteDialog from './InscripcionTramiteDialog';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -76,6 +77,12 @@ type TramiteActivo = {
     id: string;
     nombre: string;
 };
+
+type InscripcionTramite = {
+    id: string; // {userId}_{tramiteId}
+    tramiteId: string;
+    userId: string;
+}
 
 
 function LoadingScreen() {
@@ -111,6 +118,12 @@ function ControladorContent() {
     return collection(firestore, 'tramitesActivos');
   }, [firestore]);
   const { data: tramitesActivos, isLoading: isLoadingTramites } = useCollection<TramiteActivo>(tramitesActivosQuery);
+  
+  const inscripcionesQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'inscripcionesTramites'), where('userId', '==', user.uid));
+  }, [firestore, user]);
+  const { data: inscripciones, isLoading: isLoadingInscripciones } = useCollection<InscripcionTramite>(inscripcionesQuery);
 
 
   const [direccionActiveView, setDireccionActiveView] = useState<'main' | 'createUser' | 'editUser' | 'subRole' | 'crearMensaje' | 'bandejaDeEntrada' | 'configuracion'>('main');
@@ -489,31 +502,38 @@ const renderSecretariaContent = () => {
             </div>
         );
       case 'ciudadano':
+        const isLoading = isLoadingTramites || isLoadingInscripciones;
+        const inscripcionesMap = new Map(inscripciones?.map(i => [i.tramiteId, i]));
+
         return (
             <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
               <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
-              <div className="flex-grow flex flex-col p-4 bg-cover bg-center"
-                style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
-                aria-label="Fondo abstracto con formas geométricas y colores pastel."
-              >
-                  <h2 className="text-2xl font-bold mb-6 text-white">Trámites Disponibles</h2>
-                  {isLoadingTramites ? (
-                      <p className="text-white">Cargando trámites...</p>
+              <div className="flex-grow flex flex-col p-4 bg-gray-100 dark:bg-gray-900">
+                  <h2 className="text-2xl font-bold mb-6">Trámites Disponibles</h2>
+                  {isLoading ? (
+                      <p>Cargando trámites...</p>
                   ) : tramitesActivos && tramitesActivos.length > 0 ? (
                       <div className="space-y-4">
-                          {tramitesActivos.map((tramite) => (
-                              <Card key={tramite.id} className="bg-white/90 dark:bg-black/80">
-                                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4">
-                                      <CardTitle className="text-base font-medium">
-                                          {tramite.nombre}
-                                      </CardTitle>
-                                      <Button>Abrir</Button>
-                                  </CardHeader>
-                              </Card>
-                          ))}
+                          {tramitesActivos.map((tramite) => {
+                              const isPending = inscripcionesMap.has(tramite.id);
+                              return (
+                                <Card key={tramite.id}>
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
+                                        <CardTitle className="text-base font-medium">
+                                            {tramite.nombre}
+                                        </CardTitle>
+                                        {isPending ? (
+                                            <Button variant="outline" disabled>Pendiente</Button>
+                                        ) : (
+                                            <InscripcionTramiteDialog tramite={tramite} />
+                                        )}
+                                    </CardHeader>
+                                </Card>
+                              )
+                          })}
                       </div>
                   ) : (
-                      <Card className="bg-white/90 dark:bg-black/80">
+                      <Card>
                           <CardContent className="p-6 text-center">
                               <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
                           </CardContent>
