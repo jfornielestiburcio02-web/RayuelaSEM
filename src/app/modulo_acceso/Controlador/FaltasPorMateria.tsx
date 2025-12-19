@@ -321,10 +321,7 @@ export default function FaltasPorMateria() {
                                 <p className="font-semibold text-sm flex-1 pt-2">{user.username}</p>
                                 
                                 {isFullDayAbsence ? (
-                                     <div className={cn(
-                                         "flex items-center justify-center h-8 px-3 border rounded-md font-medium text-xs w-full",
-                                         userStatus === 'falta_justificada_completa' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
-                                     )}>
+                                     <div className="flex items-center justify-center h-8 px-3 border rounded-md font-medium text-xs w-full bg-gray-200 text-gray-800 border-gray-300">
                                         {userStatus === 'falta_justificada_completa' ? 'Justificado (Día C.)' : 'Injustificado (Día C.)'}
                                     </div>
                                 ) : (
