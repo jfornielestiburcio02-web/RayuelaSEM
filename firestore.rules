@@ -55,5 +55,10 @@ service cloud.firestore {
     match /anunciosSecretaria/{anuncioId} {
       allow read, write: if true;
     }
+    
+    // CONDUCTAS COLLECTION - PUBLIC ACCESS
+    match /conductas/{conductaId} {
+        allow read, write: if true;
+    }
   }
 }

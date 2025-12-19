@@ -447,6 +447,30 @@
         "creadoEn": { "type": "string", "format": "date-time" }
       },
       "required": ["titulo", "descripcion", "creadoEn"]
+    },
+    "Conducta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Conducta",
+      "type": "object",
+      "description": "Represents a behavioral record for a student (SEM user).",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the conduct record." },
+        "alumnoId": { "type": "string", "description": "The UID of the student." },
+        "alumnoName": { "type": "string", "description": "The name of the student." },
+        "incidente": { "type": "string", "description": "Title or brief summary of the incident." },
+        "descripcion": { "type": "string", "description": "Detailed description of the incident." },
+        "instructorId": { "type": "string", "description": "The UID of the instructor reporting the incident." },
+        "instructorName": { "type": "string", "description": "The name of the instructor." },
+        "fecha": { "type": "string", "format": "date", "description": "Date of the incident." },
+        "tipoMedida": { "type": "string", "enum": ["Contrarias", "Graves"] },
+        "medidas": { "type": "array", "items": { "type": "string" } },
+        "medidaOtro": { "type": "string", "description": "Custom measure if 'Otros' is selected." },
+        "aplicaCorreccion": { "type": "boolean" },
+        "tipoCorreccion": { "type": "string", "enum": ["Amonestacion oral", "Apercibimiento por escrito", "Suspender el derecho de asisstir de 1 a 3 días", "Otros"] },
+        "correccionOtro": { "type": "string", "description": "Custom correction if 'Otros' is selected." },
+        "creadoEn": { "type": "string", "format": "date-time" }
+      },
+      "required": ["alumnoId", "alumnoName", "incidente", "descripcion", "instructorId", "instructorName", "fecha", "tipoMedida", "aplicaCorreccion", "creadoEn"]
     }
   },
   "auth": {
@@ -588,6 +612,17 @@
           "description": "Stores public announcements from the secretariat.",
           "params": [
             { "name": "anuncioId", "description": "The unique ID of the public announcement." }
+          ]
+        }
+      },
+      {
+        "path": "/conductas/{conductaId}",
+        "definition": {
+          "entityName": "Conducta",
+          "schema": { "$ref": "#/backend/entities/Conducta" },
+          "description": "Stores behavioral incident reports for students.",
+          "params": [
+            { "name": "conductaId", "description": "The unique ID of the conduct record." }
           ]
         }
       }

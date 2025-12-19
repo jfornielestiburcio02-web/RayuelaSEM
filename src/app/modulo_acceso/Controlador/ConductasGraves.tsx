@@ -1,10 +1,14 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import RegistroConductaForm from './RegistroConductaForm';
 
 type UserDoc = {
   id: string;
@@ -13,12 +17,24 @@ type UserDoc = {
 
 export default function ConductasGraves() {
   const firestore = useFirestore();
+  const [selectedUser, setSelectedUser] = useState<UserDoc | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const usersQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'users'), where('role', 'array-contains', 'SEM')) : null),
     [firestore]
   );
   const { data: users, isLoading } = useCollection<UserDoc>(usersQuery);
+
+  const handleNewRegistro = (user: UserDoc) => {
+    setSelectedUser(user);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setSelectedUser(null);
+  };
 
   return (
     <div className="flex-grow p-6 overflow-auto bg-gray-50 dark:bg-gray-900/50">
@@ -44,7 +60,19 @@ export default function ConductasGraves() {
                 {users && users.length > 0 ? (
                   users.map(user => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.username}</TableCell>
+                      <TableCell className="font-medium">
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="link" className="p-0 h-auto font-medium">{user.username}</Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => handleNewRegistro(user)}>
+                              Nuevo registro
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Ver registros</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                       <TableCell>0</TableCell>
                     </TableRow>
                   ))
@@ -60,6 +88,20 @@ export default function ConductasGraves() {
           )}
         </CardContent>
       </Card>
+      
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>Nuevo Registro de Conducta para {selectedUser?.username}</DialogTitle>
+                <DialogDescription>
+                    Rellena todos los campos para documentar el incidente.
+                </DialogDescription>
+            </DialogHeader>
+            {selectedUser && (
+                <RegistroConductaForm user={selectedUser} onFinished={handleCloseForm} />
+            )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
