@@ -21,6 +21,7 @@ import { useAuth, useFirestore } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
   email: z.string().email({ message: "El correo electrónico no es válido." }),
@@ -105,6 +106,10 @@ export default function LoginForm() {
           <Button type="submit" size="sm" className="bg-black hover:bg-black/90 text-white font-bold px-8 w-full">
             Entrar
           </Button>
+           <Separator className="bg-white/20 my-4" />
+           <Link href="/secretaria-virtual" className="text-white hover:underline text-sm font-medium">
+             Secretaría Virtual
+           </Link>
         </div>
       </form>
     </Form>
