@@ -48,7 +48,8 @@ const roleToViewMap: Record<string, string> = {
     'Instructor': 'instructor',
     'Instructor Gestion': 'gestion_sem',
     'Dirección': 'direccion',
-    'Facciones Legales': 'facciones_legales'
+    'Facciones Legales': 'facciones_legales',
+    'Ciudadano': 'ciudadano',
 };
 
 const viewToRoleMap: Record<string, string> = {
@@ -57,7 +58,8 @@ const viewToRoleMap: Record<string, string> = {
     'gestion_sem': 'Instructor Gestion',
     'direccion': 'Dirección',
     'responsable_faccion': 'Dirección', // Special case
-    'facciones_legales': 'Facciones Legales'
+    'facciones_legales': 'Facciones Legales',
+    'ciudadano': 'Ciudadano',
 };
 
 type UserProfile = {
@@ -431,6 +433,19 @@ function ControladorContent() {
                     </div>
                 </div>
             </div>
+        );
+      case 'ciudadano':
+        return (
+          <main
+            className="flex min-h-screen flex-col items-center justify-center p-4 bg-cover bg-center space-y-8"
+            style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
+            aria-label="Fondo abstracto con formas geométricas y colores pastel."
+          >
+            <div className="bg-white/90 dark:bg-black/80 p-8 rounded-xl shadow-lg text-center">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes Futuras</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">Este espacio está reservado para futuras funcionalidades.</p>
+            </div>
+          </main>
         );
       default:
         return (

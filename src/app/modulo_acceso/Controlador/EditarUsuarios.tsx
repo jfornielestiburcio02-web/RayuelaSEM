@@ -29,7 +29,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 
-const rolesDisponibles = ["SEM", "Instructor", "Instructor Gestion", "Dirección", "Facciones Legales"] as const;
+const rolesDisponibles = ["SEM", "Instructor", "Instructor Gestion", "Dirección", "Facciones Legales", "Ciudadano"] as const;
 
 type UserDoc = {
   id: string;

@@ -79,6 +79,7 @@ export default function ContenedorPage() {
   const canSeeSeguimientoSEM = userRoles.includes('SEM') || userRoles.includes('Instructor');
   const canSeeDireccion = userRoles.includes('Dirección');
   const canSeeFaccionesLegales = userRoles.includes('Facciones Legales');
+  const isCiudadanoOnly = userRoles.length === 1 && userRoles.includes('Ciudadano');
 
   const seguimientoHref = () => {
     if (userRoles.includes('Instructor')) {
@@ -89,6 +90,21 @@ export default function ContenedorPage() {
     }
     return '/modulo_acceso/Controlador';
   };
+
+  if (isCiudadanoOnly) {
+    return (
+      <main
+        className="flex min-h-screen flex-col items-center justify-center p-4 bg-cover bg-center space-y-8"
+        style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
+        aria-label="Fondo abstracto con formas geométricas y colores pastel."
+      >
+        <div className="bg-white/90 dark:bg-black/80 p-8 rounded-xl shadow-lg text-center">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes Futuras</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">Este espacio está reservado para futuras funcionalidades.</p>
+        </div>
+      </main>
+    );
+  }
 
   const availableSections = [];
   if (canSeeGestionSEM) {

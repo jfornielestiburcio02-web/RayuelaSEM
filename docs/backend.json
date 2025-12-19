@@ -42,7 +42,8 @@
               "Instructor",
               "Instructor Gestion",
               "Dirección",
-              "Facciones Legales"
+              "Facciones Legales",
+              "Ciudadano"
             ]
           }
         },
@@ -481,5 +482,3 @@
     "reasoning": "This Firestore data structure prioritizes security and scalability for the Acceso Seguro application, focusing on user authentication and attendance tracking. The structure now includes two primary collections: `/users` and `/asistencia`. The `/users/{userId}` path ensures user data is isolated and secure. The `/asistencia/{asistenciaId}` collection is designed for efficient attendance management, using a composite key `userId_date` to allow instructors to quickly write and retrieve attendance status for a specific student on a specific day, preventing duplicates and simplifying queries."
   }
 }
-
-    
