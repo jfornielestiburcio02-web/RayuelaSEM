@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import DireccionSidebar from './DireccionSidebar';
 import InstructorSidebar from './InstructorSidebar';
 import SemSidebar from './SemSidebar';
@@ -26,7 +26,7 @@ import MisFeedbacks from './MisFeedbacks';
 import { Button } from '@/components/ui/button';
 import PersonalAbsentista from './PersonalAbsentista';
 import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
-import { doc, collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { doc, collection, query, where, orderBy, Timestamp, getDocs, setDoc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import ConfiguracionUsuario from './ConfiguracionUsuario';
 import {
   AlertDialog,
@@ -52,6 +52,7 @@ import SolicitudesAccesoSem from './SolicitudesAccesoSem';
 import AnunciosSecretaria from './AnunciosSecretaria';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 const roleToViewMap: Record<string, string> = {
     'SEM': 'sem',
@@ -98,6 +99,14 @@ type AnuncioSecretariaDoc = {
     creadoEn: Timestamp;
 };
 
+type ServicioDoc = {
+    id: string;
+    semUserId: string;
+    semUserName: string;
+    startTime: Timestamp;
+    endTime?: Timestamp;
+};
+
 
 function LoadingScreen() {
     return (
@@ -120,6 +129,7 @@ function ControladorContent() {
 
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
   
   const userDocRef = useMemoFirebase(
     () => (user ? doc(firestore, 'users', user.uid) : null),
@@ -145,60 +155,138 @@ function ControladorContent() {
   );
   const { data: anunciosSecretaria, isLoading: isLoadingAnuncios } = useCollection<AnuncioSecretariaDoc>(anunciosSecretariaQuery);
 
+  // State for sidebars
   const [direccionActiveView, setDireccionActiveView] = useState<'main' | 'createUser' | 'editUser' | 'subRole' | 'crearMensaje' | 'bandejaDeEntrada' | 'configuracion'>('main');
   const [subRoleView, setSubRoleView] = useState('');
-
   const [instructorActiveView, setInstructorActiveView] = useState<'main' | 'faltasPorMateria' | 'informesEnviados' | 'gestionFaltas' | 'verServicios' | 'crearAnuncio' | 'registrosFeedback' | 'bandejaDeEntrada' | 'configuracion'>('main');
-  
   const [semActiveView, setSemActiveView] = useState<'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'configuracion'>('anuncios');
-
   const [gestionSemActiveView, setGestionSemActiveView] = useState<'main' | 'personalAbsentista'>('main');
-  
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
-
   const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar'>('tramites');
-
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
+  // State for ServicioSEM lifted up
+  const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
+  const [isLoadingService, setIsLoadingService] = useState(true);
 
+  // Update elapsed time for service timer
+    const updateElapsedTime = useCallback(() => {
+        if (!startTime) return;
+        const now = new Date();
+        const diff = now.getTime() - startTime.getTime();
+        const hours = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        setElapsedTime(`${hours}:${minutes}:${seconds}`);
+    }, [startTime]);
+
+  // Check for active service on mount and when user changes
+    useEffect(() => {
+        if (!firestore || !user) return;
+        setIsLoadingService(true);
+
+        const serviciosRef = collection(firestore, 'servicios');
+        const q = query(serviciosRef, where('semUserId', '==', user.uid), where('endTime', '==', null));
+
+        getDocs(q).then((snapshot) => {
+            if (!snapshot.empty) {
+                const activeServiceDoc = snapshot.docs[0];
+                const data = activeServiceDoc.data() as ServicioDoc;
+                setActiveServiceId(activeServiceDoc.id);
+                setStartTime(data.startTime.toDate());
+            } else {
+                setActiveServiceId(null);
+                setStartTime(null);
+                setElapsedTime('00:00:00');
+            }
+        }).finally(() => setIsLoadingService(false));
+    }, [firestore, user]);
+
+    // Timer interval
+    useEffect(() => {
+        if (startTime) {
+            const timerId = setInterval(updateElapsedTime, 1000);
+            return () => clearInterval(timerId);
+        }
+    }, [startTime, updateElapsedTime]);
+
+    const handleStartService = async () => {
+        if (!firestore || !user) return;
+        setIsLoadingService(true);
+        try {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            const username = userDocSnap.exists() ? userDocSnap.data().username : 'Usuario SEM';
+
+            const newServiceRef = doc(collection(firestore, 'servicios'));
+            const now = new Date();
+            const newService: Omit<ServicioDoc, 'id'> = {
+                semUserId: user.uid,
+                semUserName: username,
+                startTime: Timestamp.fromDate(now),
+            };
+            await setDoc(newServiceRef, newService);
+            setActiveServiceId(newServiceRef.id);
+            setStartTime(now);
+            toast({ title: 'Servicio iniciado', description: 'El temporizador ha comenzado.' });
+        } catch (error) {
+            console.error("Error al iniciar el servicio:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'No se pudo iniciar el servicio.' });
+        } finally {
+            setIsLoadingService(false);
+        }
+    };
+
+    const handleStopService = async () => {
+        if (!firestore || !activeServiceId) return;
+        setIsLoadingService(true);
+        try {
+            const serviceDocRef = doc(firestore, 'servicios', activeServiceId);
+            await updateDoc(serviceDocRef, {
+                endTime: serverTimestamp(),
+            });
+            setActiveServiceId(null);
+            setStartTime(null);
+            setElapsedTime('00:00:00');
+            toast({ title: 'Servicio finalizado', description: 'El tiempo de servicio ha sido registrado.' });
+        } catch (error) {
+            console.error("Error al finalizar el servicio:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'No se pudo finalizar el servicio.' });
+        } finally {
+            setIsLoadingService(false);
+        }
+    };
+
+
+  // Main auth/role redirection logic
   useEffect(() => {
-    // Wait for all user data to finish loading.
     if (isUserLoading || isUserDataLoading) {
         return;
     }
-
-    // If loading is done and there is no user, redirect to login.
     if (!user) {
         router.push('/modulo_acceso/identificacion');
         return;
     }
-
-    // If there is a user but no role data yet, wait.
     if (!userData) {
       return;
     }
-
     const userRoles = userData.role || [];
     const requiredRoleForView = viewToRoleMap[view];
-
-    // If the user does not have the required role for the current view...
     if (requiredRoleForView && !userRoles.includes(requiredRoleForView)) {
-        // Find the first valid role the user *does* have.
         const firstValidRole = userRoles.find(role => roleToViewMap[role]);
-        
-        // If they have a valid role, redirect them to that role's view.
         if (firstValidRole) {
             router.push(`/modulo_acceso/Controlador?view=${roleToViewMap[firstValidRole]}`);
         } else {
-            // If they have no valid roles, send them back to the container page.
             router.push('/modulo_acceso/Contenedor');
         }
     }
   }, [view, user, userData, isUserLoading, isUserDataLoading, router]);
 
 
+  // Reset component state when main view changes
   useEffect(() => {
-    // Reset active views when the main 'view' prop changes
     if (view === 'direccion') {
         setDireccionActiveView('main');
         setSubRoleView('');
@@ -253,8 +341,7 @@ function ControladorContent() {
     if (view === 'instructor') setInstructorActiveView('configuracion');
     if (view === 'sem') setSemActiveView('configuracion');
     if (view === 'ciudadano') {
-        // Special case for ciudadano since it doesn't have a sidebar/complex state
-        // One option is a state for it, or just render the component directly
+        // Ciudadano view doesn't have a complex state machine for views, so this is handled differently
     }
   }
 
@@ -327,7 +414,13 @@ function ControladorContent() {
         case 'crearInforme':
             return <CrearInformeForm />;
         case 'servicio':
-            return <ServicioSEM />;
+            return <ServicioSEM 
+                activeServiceId={activeServiceId}
+                elapsedTime={elapsedTime}
+                isLoading={isLoadingService}
+                onStartService={handleStartService}
+                onStopService={handleStopService}
+            />;
         case 'anuncios':
              return <VerAnuncios />;
         case 'misFeedbacks':

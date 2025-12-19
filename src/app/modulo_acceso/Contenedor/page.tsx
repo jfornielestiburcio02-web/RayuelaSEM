@@ -159,20 +159,7 @@ export default function ContenedorPage() {
       </Link>
     );
   }
-  if (canSeeSecretaria) {
-    availableSections.push(
-      <Link href="/modulo_acceso/Controlador?view=secretaria" passHref key="secretaria">
-        <Image
-          src="https://i.ibb.co/MkrCfjxB/Dise-o-sin-t-tulo-7-1.png"
-          alt="Secretaría"
-          width={300}
-          height={200}
-          className="cursor-pointer"
-          data-ai-hint="secretary desk"
-        />
-      </Link>
-    );
-  }
+
 
   return (
     <main
