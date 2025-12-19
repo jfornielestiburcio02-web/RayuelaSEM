@@ -186,6 +186,8 @@ export default function FaltasPorMateria() {
         } else {
              if (!newFeedback) return; // No need to create a doc just to remove feedback
             dataToSet = {
+                userId: userId,
+                date: dateKey,
                 ...dataToSet,
                 recordedBy: instructor.uid,
                 timestamp: serverTimestamp()
@@ -214,22 +216,14 @@ export default function FaltasPorMateria() {
   const isLoading = isLoadingUsers || isLoadingAsistencia;
 
   const renderAttendanceIcon = (justificacion?: Justificacion) => {
-        let icon = null;
-        let tooltipText = '';
-
-        if (justificacion) {
-             icon = 'https://i.ibb.co/xS30qyTg/2-1.png';
-             tooltipText = `Justificado: ${justificacion.motivo}`;
-        }
-        
-        if (!icon) return null;
+        if (!justificacion) return null;
 
         return (
              <Tooltip>
                 <TooltipTrigger asChild>
                     <div className="absolute -top-3 -right-3">
                         <Image 
-                            src={icon}
+                            src="https://i.ibb.co/xS30qyTg/2-1.png"
                             alt="Estado de asistencia"
                             width={40}
                             height={40}
@@ -237,7 +231,7 @@ export default function FaltasPorMateria() {
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p className='font-bold'>{tooltipText}</p>
+                    <p className='font-bold'>Justificado: {justificacion.motivo}</p>
                 </TooltipContent>
             </Tooltip>
         );

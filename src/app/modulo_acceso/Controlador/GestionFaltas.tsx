@@ -379,9 +379,7 @@ export default function GestionFaltas() {
              
             if (status) {
                 dataToSet.status = status;
-                 if (status === 'falta_justificada_completa' && reason && !docSnap.data()?.justificacion) {
-                    dataToSet.justificacion = { motivo: reason };
-                }
+                // DO NOT add a justification object here, as that is only for student-submitted justifications
             } else {
                 dataToSet.status = 'asiste';
             }
@@ -405,8 +403,7 @@ export default function GestionFaltas() {
     
     const handleJustifySubmit = async () => {
         if (justificationDate) {
-            const reason = justificationReason || 'Justificado por instructor';
-            await updateAttendance(justificationDate, 'falta_justificada_completa', reason);
+            await updateAttendance(justificationDate, 'falta_justificada_completa');
             toast({ title: 'Falta Justificada', description: 'La falta ha sido marcada como justificada.' });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: 'No hay fecha para justificar.' });
@@ -617,26 +614,12 @@ export default function GestionFaltas() {
                         <DialogHeader>
                             <DialogTitle>Justificar Falta</DialogTitle>
                             <DialogDescription>
-                                Introduce el motivo de la justificación para el {justificationDate ? format(justificationDate, 'dd/MM/yyyy') : ''}.
+                                Estás a punto de justificar la falta del día completo. Este paso no requiere un motivo ya que es una acción del instructor.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="reason" className="text-right">
-                                    Motivo
-                                </Label>
-                                <Input
-                                    id="reason"
-                                    value={justificationReason}
-                                    onChange={(e) => setJustificationReason(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="Ej: Cita médica"
-                                />
-                            </div>
-                        </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setIsJustifyDialogOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleJustifySubmit}>Guardar Justificación</Button>
+                            <Button onClick={handleJustifySubmit}>Justificar Falta</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
