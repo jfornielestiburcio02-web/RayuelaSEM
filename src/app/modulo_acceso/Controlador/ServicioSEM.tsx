@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, query, where, getDocs, doc, setDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, updateDoc, serverTimestamp, Timestamp, getDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -64,11 +64,15 @@ export default function ServicioSEM() {
         if (!firestore || !user) return;
         setIsLoading(true);
         try {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            const username = userDocSnap.exists() ? userDocSnap.data().username : 'Usuario SEM';
+
             const newServiceRef = doc(collection(firestore, 'servicios'));
             const now = new Date();
             const newService: Omit<ServicioDoc, 'id'> = {
                 semUserId: user.uid,
-                semUserName: user.displayName || 'Usuario SEM',
+                semUserName: username,
                 startTime: Timestamp.fromDate(now),
             };
             await setDoc(newServiceRef, newService);
