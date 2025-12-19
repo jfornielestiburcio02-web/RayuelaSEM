@@ -5,6 +5,7 @@ import { collection } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import InscripcionVirtualDialog from './InscripcionVirtualDialog';
 
 type TramiteActivo = {
     id: string;
@@ -20,6 +21,11 @@ function PublicTramitesList() {
     }, [firestore]);
 
     const { data: tramitesActivos, isLoading: isLoadingTramites } = useCollection<TramiteActivo>(tramitesActivosQuery);
+    
+    const tramiteFijo = {
+        id: 'acceso-sem',
+        nombre: 'Acceso al SEM (CATRP) (OP)',
+    }
 
     return (
         <Card className="w-full max-w-3xl">
@@ -30,14 +36,12 @@ function PublicTramitesList() {
             <CardContent>
                  <div className="space-y-4">
                     {/* Trámite fijo */}
-                    <Card key="acceso-sem">
+                    <Card key={tramiteFijo.id}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
                             <CardTitle className="text-base font-medium">
-                                Acceso al SEM (CATRP) (OP)
+                                {tramiteFijo.nombre}
                             </CardTitle>
-                            <Button asChild>
-                                <Link href="/modulo_acceso/identificacion">Inscribirse</Link>
-                            </Button>
+                             <InscripcionVirtualDialog tramite={tramiteFijo} />
                         </CardHeader>
                     </Card>
 
@@ -51,9 +55,7 @@ function PublicTramitesList() {
                                     <CardTitle className="text-base font-medium">
                                         {tramite.nombre}
                                     </CardTitle>
-                                    <Button asChild>
-                                        <Link href="/modulo_acceso/identificacion">Inscribirse</Link>
-                                    </Button>
+                                    <InscripcionVirtualDialog tramite={tramite} />
                                 </CardHeader>
                             </Card>
                         ))
