@@ -28,11 +28,24 @@ function PublicTramitesList() {
                 <CardDescription>Estos son los cursos y trámites actualmente abiertos.</CardDescription>
             </CardHeader>
             <CardContent>
-                {isLoadingTramites ? (
-                    <p className="text-center text-muted-foreground">Cargando trámites...</p>
-                ) : tramitesActivos && tramitesActivos.length > 0 ? (
-                    <div className="space-y-4">
-                        {tramitesActivos.map((tramite) => (
+                 <div className="space-y-4">
+                    {/* Trámite fijo */}
+                    <Card key="acceso-sem">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
+                            <CardTitle className="text-base font-medium">
+                                Acceso al SEM (CATRP) (OP)
+                            </CardTitle>
+                            <Button asChild>
+                                <Link href="/modulo_acceso/identificacion">Inscribirse</Link>
+                            </Button>
+                        </CardHeader>
+                    </Card>
+
+                    {/* Trámites dinámicos */}
+                    {isLoadingTramites ? (
+                        <p className="text-center text-muted-foreground pt-4">Cargando otros trámites...</p>
+                    ) : tramitesActivos && tramitesActivos.length > 0 ? (
+                        tramitesActivos.map((tramite) => (
                             <Card key={tramite.id}>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
                                     <CardTitle className="text-base font-medium">
@@ -43,13 +56,13 @@ function PublicTramitesList() {
                                     </Button>
                                 </CardHeader>
                             </Card>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="p-6 text-center">
-                        <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
-                    </div>
-                )}
+                        ))
+                    ) : (
+                        <div className="p-6 text-center">
+                            <p className="text-muted-foreground">No hay otros trámites disponibles en este momento.</p>
+                        </div>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );
@@ -58,10 +71,7 @@ function PublicTramitesList() {
 export default function SecretariaVirtualPage() {
     return (
         <main
-            className="flex min-h-screen flex-col items-center p-4 bg-cover bg-center pt-24"
-            style={{
-                backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')",
-            }}
+            className="flex min-h-screen flex-col items-center p-4 bg-white pt-24"
         >
             <PublicTramitesList />
         </main>
