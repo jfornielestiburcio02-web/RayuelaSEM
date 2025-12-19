@@ -153,6 +153,8 @@ export default function FaltasPorMateria() {
     } else {
         const nextStatus = statusCycle[currentIndex + 1];
         const dataToSet: Partial<AsistenciaDoc> = {
+            userId: userId,
+            date: dateKey,
             status: nextStatus,
             recordedBy: instructor.uid,
             timestamp: serverTimestamp(),
