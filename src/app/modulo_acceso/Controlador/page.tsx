@@ -53,6 +53,7 @@ import AnunciosSecretaria from './AnunciosSecretaria';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import ConductasGraves from './ConductasGraves';
 
 const roleToViewMap: Record<string, string> = {
     'SEM': 'sem',
@@ -160,7 +161,7 @@ function ControladorContent() {
   const [subRoleView, setSubRoleView] = useState('');
   const [instructorActiveView, setInstructorActiveView] = useState<'main' | 'faltasPorMateria' | 'informesEnviados' | 'gestionFaltas' | 'verServicios' | 'crearAnuncio' | 'registrosFeedback' | 'bandejaDeEntrada' | 'configuracion'>('main');
   const [semActiveView, setSemActiveView] = useState<'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'configuracion'>('anuncios');
-  const [gestionSemActiveView, setGestionSemActiveView] = useState<'main' | 'personalAbsentista'>('main');
+  const [gestionSemActiveView, setGestionSemActiveView] = useState<'main' | 'personalAbsentista' | 'conductasGraves'>('main');
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
   const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar'>('tramites');
   const [showConductasAlert, setShowConductasAlert] = useState(false);
@@ -443,6 +444,8 @@ function ControladorContent() {
       switch(gestionSemActiveView) {
           case 'personalAbsentista':
               return <PersonalAbsentista />;
+          case 'conductasGraves':
+              return <ConductasGraves />;
           default:
               return (
                 <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
@@ -506,7 +509,7 @@ const renderSecretariaContent = () => {
                 <div className="flex flex-grow overflow-hidden">
                     <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 flex flex-col space-y-2 pt-8 shadow-md">
                         <Button variant={gestionSemActiveView === 'personalAbsentista' ? 'secondary': 'ghost'} className="w-full justify-start" onClick={() => setGestionSemActiveView('personalAbsentista')}>Personal Absentista</Button>
-                        <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setShowConductasAlert(true)}>
+                        <Button variant={gestionSemActiveView === 'conductasGraves' ? 'secondary': 'ghost'} className="w-full justify-start gap-2" onClick={() => setGestionSemActiveView('conductasGraves')}>
                             <ShieldAlert className='h-4 w-4' />
                            Conductas Contrarias / Graves
                         </Button>
