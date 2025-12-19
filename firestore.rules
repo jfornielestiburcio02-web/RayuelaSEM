@@ -45,5 +45,10 @@ service cloud.firestore {
     match /inscripcionesTramites/{inscripcionId} {
       allow read, write: if true;
     }
+
+    // SOLICITUDES ACCESO COLLECTION - PUBLIC ACCESS
+    match /solicitudesAcceso/{solicitudId} {
+      allow read, write: if true;
+    }
   }
 }

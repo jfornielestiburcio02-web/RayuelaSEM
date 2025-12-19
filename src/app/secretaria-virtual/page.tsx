@@ -3,9 +3,7 @@
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import InscripcionVirtualDialog from './InscripcionVirtualDialog';
 
 type TramiteActivo = {
     id: string;
@@ -41,7 +39,11 @@ function PublicTramitesList() {
                             <CardTitle className="text-base font-medium">
                                 {tramiteFijo.nombre}
                             </CardTitle>
-                             <InscripcionVirtualDialog tramite={tramiteFijo} />
+                             <Link href="/secretaria-virtual/inscripcion" passHref>
+                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                    Inscribirse
+                                </button>
+                             </Link>
                         </CardHeader>
                     </Card>
 
@@ -55,7 +57,11 @@ function PublicTramitesList() {
                                     <CardTitle className="text-base font-medium">
                                         {tramite.nombre}
                                     </CardTitle>
-                                    <InscripcionVirtualDialog tramite={tramite} />
+                                    <Link href="/secretaria-virtual/inscripcion" passHref>
+                                         <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                            Inscribirse
+                                        </button>
+                                    </Link>
                                 </CardHeader>
                             </Card>
                         ))

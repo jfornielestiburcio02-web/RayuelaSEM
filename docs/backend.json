@@ -412,6 +412,26 @@
         }
       },
       "required": ["id", "userId", "tramiteId", "userName", "tramiteName", "status", "inscritoEn"]
+    },
+    "SolicitudAcceso": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SolicitudAcceso",
+      "type": "object",
+      "description": "Represents an application for SEM access.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the application." },
+        "nombre": { "type": "string" },
+        "apellidos": { "type": "string" },
+        "dni": { "type": "string" },
+        "fechaNacimiento": { "type": "string", "format": "date" },
+        "usuarioDiscord": { "type": "string" },
+        "fotoUrl": { "type": "string", "format": "uri" },
+        "sexo": { "type": "string", "enum": ["Hombre", "Mujer", "Otro"] },
+        "nacionalidad": { "type": "string" },
+        "quiereAccederSem": { "type": "boolean" },
+        "creadoEn": { "type": "string", "format": "date-time" }
+      },
+      "required": ["nombre", "apellidos", "dni", "fechaNacimiento", "usuarioDiscord", "sexo", "nacionalidad", "quiereAccederSem", "creadoEn"]
     }
   },
   "auth": {
@@ -531,6 +551,17 @@
               "name": "inscripcionId",
               "description": "The composite ID for the registration, e.g., {userId}_{tramiteId}."
             }
+          ]
+        }
+      },
+      {
+        "path": "/solicitudesAcceso/{solicitudId}",
+        "definition": {
+          "entityName": "SolicitudAcceso",
+          "schema": { "$ref": "#/backend/entities/SolicitudAcceso" },
+          "description": "Stores applications for SEM access submitted via the public form.",
+          "params": [
+            { "name": "solicitudId", "description": "The unique ID of the access application." }
           ]
         }
       }

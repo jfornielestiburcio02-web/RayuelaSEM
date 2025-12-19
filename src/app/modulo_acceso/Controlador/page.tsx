@@ -48,6 +48,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import InscripcionTramiteDialog from './InscripcionTramiteDialog';
 import SecretariaSolicitudes from './SecretariaSolicitudes';
 import { cn } from '@/lib/utils';
+import SolicitudesAccesoSem from './SolicitudesAccesoSem';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -140,7 +141,7 @@ function ControladorContent() {
   
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
 
-  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes'>('tramites');
+  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso'>('tramites');
 
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
@@ -227,7 +228,7 @@ function ControladorContent() {
       setFaccionesLegalesActiveView(option);
   }
 
-  const handleSecretariaSidebarSelection = (option: 'tramites' | 'solicitudes') => {
+  const handleSecretariaSidebarSelection = (option: 'tramites' | 'solicitudes' | 'solicitudesAcceso') => {
     setSecretariaActiveView(option);
   }
 
@@ -374,6 +375,8 @@ const renderSecretariaContent = () => {
       return <SecretariaTramites />;
     case 'solicitudes':
         return <SecretariaSolicitudes />;
+    case 'solicitudesAcceso':
+        return <SolicitudesAccesoSem />;
     default:
       return <SecretariaMain />;
   }
@@ -511,7 +514,7 @@ const renderSecretariaContent = () => {
         const inscripcionesMap = new Map(inscripciones?.map(i => [i.tramiteId, i.status]));
 
         return (
-            <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
+            <div className="flex flex-col w-full h-screen bg-white">
               <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
               <div className="flex-grow flex flex-col p-6">
                  <Card>
@@ -526,7 +529,6 @@ const renderSecretariaContent = () => {
                             <div className="space-y-4">
                                 {tramitesActivos.map((tramite) => {
                                     const status = inscripcionesMap.get(tramite.id);
-                                    const isPending = status === 'pendiente';
                                     const isApproved = status === 'aprobado';
                                     const isRejected = status === 'rechazado';
                                     
