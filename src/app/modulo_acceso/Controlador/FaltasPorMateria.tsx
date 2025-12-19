@@ -317,7 +317,7 @@ export default function FaltasPorMateria() {
                                 {isFullDayAbsence ? (
                                     <div className="flex items-center justify-center gap-2 h-8 w-full">
                                         <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
-                                            <span className="font-bold text-black">
+                                            <span className="font-bold text-black text-xs">
                                                 {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
                                             </span>
                                         </div>
