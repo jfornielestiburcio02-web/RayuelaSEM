@@ -2,14 +2,25 @@
 
 import { useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Trash2 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -58,6 +69,21 @@ export default function SolicitudesAccesoSem() {
         } catch (error) {
             console.error("Error al actualizar estado:", error);
             toast({ variant: 'destructive', title: 'Error', description: 'No se pudo actualizar el estado de la solicitud.' });
+        }
+    };
+    
+    const handleDelete = async (id: string) => {
+        if (!firestore) return;
+        const docRef = doc(firestore, 'solicitudesAcceso', id);
+        try {
+            await deleteDoc(docRef);
+            toast({
+                title: 'Solicitud eliminada',
+                description: 'La solicitud ha sido eliminada permanentemente.',
+            });
+        } catch (error) {
+            console.error("Error al eliminar solicitud:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar la solicitud.' });
         }
     };
 
@@ -130,7 +156,28 @@ export default function SolicitudesAccesoSem() {
                                             <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-100 hover:text-red-700" onClick={() => handleUpdateStatus(solicitud.id, 'rechazado')}>Rechazar</Button>
                                         </>
                                     ) : (
-                                        <span className="text-xs text-muted-foreground">Solicitud ya gestionada.</span>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" title="Eliminar solicitud">
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Esta acción no se puede deshacer. Se eliminará permanentemente la solicitud de
+                                                    {solicitud.nombre} {solicitud.apellidos}.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(solicitud.id)}>
+                                                    Eliminar
+                                                </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     )}
                                 </div>
                            </div>
