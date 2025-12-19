@@ -39,6 +39,7 @@ const viewToRoleName: Record<string, string> = {
     'responsable_faccion': 'Responsable Faccion',
     'facciones_legales': 'Facciones Legales',
     'secretaria': 'Secretaría',
+    'ciudadano': 'Ciudadano',
 }
 
 export default function DireccionHeader({ currentView, onSelectSubRole, onOpenConfig }: DireccionHeaderProps) {
@@ -173,6 +174,14 @@ export default function DireccionHeader({ currentView, onSelectSubRole, onOpenCo
                      <Button key={role} variant="ghost" className="text-center h-auto py-1 flex flex-col items-center gap-1" onClick={() => handleRoleChange('secretaria')}>
                         <Image src="https://i.ibb.co/gZvGkphp/Dise-o-sin-t-tulo-14-1.png" alt="Secretaría Icon" width={32} height={32} />
                         <span className='text-xs'>Secretaría</span>
+                    </Button>
+                )
+            }
+             if (role === 'Ciudadano') {
+                return (
+                     <Button key={role} variant="ghost" className="text-center h-auto py-1 flex flex-col items-center gap-1" onClick={() => handleRoleChange('ciudadano')}>
+                        <Image src="https://i.ibb.co/8Y9fX0Y/Diseno-sin-titulo-15.png" alt="Ciudadano Icon" width={32} height={32} />
+                        <span className='text-xs'>Ciudadano</span>
                     </Button>
                 )
             }
