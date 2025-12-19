@@ -44,8 +44,10 @@ import ExpulsarUsuarioForm from './ExpulsarUsuarioForm';
 import SecretariaMain from './SecretariaMain';
 import SecretariaSidebar from './SecretariaSidebar';
 import SecretariaTramites from './SecretariaTramites';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import InscripcionTramiteDialog from './InscripcionTramiteDialog';
+import SecretariaSolicitudes from './SecretariaSolicitudes';
+import { cn } from '@/lib/utils';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -82,6 +84,7 @@ type InscripcionTramite = {
     id: string; // {userId}_{tramiteId}
     tramiteId: string;
     userId: string;
+    status: 'pendiente' | 'aprobado' | 'rechazado';
 }
 
 
@@ -137,7 +140,7 @@ function ControladorContent() {
   
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
 
-  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites'>('tramites');
+  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes'>('tramites');
 
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
@@ -224,7 +227,7 @@ function ControladorContent() {
       setFaccionesLegalesActiveView(option);
   }
 
-  const handleSecretariaSidebarSelection = (option: 'tramites') => {
+  const handleSecretariaSidebarSelection = (option: 'tramites' | 'solicitudes') => {
     setSecretariaActiveView(option);
   }
 
@@ -369,6 +372,8 @@ const renderSecretariaContent = () => {
   switch (secretariaActiveView) {
     case 'tramites':
       return <SecretariaTramites />;
+    case 'solicitudes':
+        return <SecretariaSolicitudes />;
     default:
       return <SecretariaMain />;
   }
@@ -503,42 +508,60 @@ const renderSecretariaContent = () => {
         );
       case 'ciudadano':
         const isLoading = isLoadingTramites || isLoadingInscripciones;
-        const inscripcionesMap = new Map(inscripciones?.map(i => [i.tramiteId, i]));
+        const inscripcionesMap = new Map(inscripciones?.map(i => [i.tramiteId, i.status]));
 
         return (
             <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
               <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
-              <div className="flex-grow flex flex-col p-4 bg-gray-100 dark:bg-gray-900">
-                  <h2 className="text-2xl font-bold mb-6">Trámites Disponibles</h2>
-                  {isLoading ? (
-                      <p>Cargando trámites...</p>
-                  ) : tramitesActivos && tramitesActivos.length > 0 ? (
-                      <div className="space-y-4">
-                          {tramitesActivos.map((tramite) => {
-                              const isPending = inscripcionesMap.has(tramite.id);
-                              return (
-                                <Card key={tramite.id}>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
-                                        <CardTitle className="text-base font-medium">
-                                            {tramite.nombre}
-                                        </CardTitle>
-                                        {isPending ? (
-                                            <Button variant="outline" disabled>Pendiente</Button>
-                                        ) : (
-                                            <InscripcionTramiteDialog tramite={tramite} />
-                                        )}
-                                    </CardHeader>
-                                </Card>
-                              )
-                          })}
-                      </div>
-                  ) : (
-                      <Card>
-                          <CardContent className="p-6 text-center">
-                              <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
-                          </CardContent>
-                      </Card>
-                  )}
+              <div className="flex-grow flex flex-col p-6">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Trámites Disponibles</CardTitle>
+                        <CardDescription>Estos son los cursos y trámites a los que te puedes inscribir.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoading ? (
+                            <p>Cargando trámites...</p>
+                        ) : tramitesActivos && tramitesActivos.length > 0 ? (
+                            <div className="space-y-4">
+                                {tramitesActivos.map((tramite) => {
+                                    const status = inscripcionesMap.get(tramite.id);
+                                    const isPending = status === 'pendiente';
+                                    const isApproved = status === 'aprobado';
+                                    const isRejected = status === 'rechazado';
+                                    
+                                    return (
+                                        <Card key={tramite.id}>
+                                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
+                                                <CardTitle className="text-base font-medium">
+                                                    {tramite.nombre}
+                                                </CardTitle>
+                                                {status ? (
+                                                     <Button 
+                                                        variant="outline" 
+                                                        disabled
+                                                        className={cn(
+                                                            isApproved && 'border-green-500 text-green-500',
+                                                            isRejected && 'border-red-500 text-red-500'
+                                                        )}
+                                                     >
+                                                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                                                     </Button>
+                                                ) : (
+                                                    <InscripcionTramiteDialog tramite={tramite} />
+                                                )}
+                                            </CardHeader>
+                                        </Card>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="p-6 text-center">
+                                <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
               </div>
             </div>
           );
