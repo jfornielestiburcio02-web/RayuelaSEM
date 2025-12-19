@@ -25,8 +25,8 @@ import RegistrosFeedback from './RegistrosFeedback';
 import MisFeedbacks from './MisFeedbacks';
 import { Button } from '@/components/ui/button';
 import PersonalAbsentista from './PersonalAbsentista';
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
+import { doc, collection } from 'firebase/firestore';
 import ConfiguracionUsuario from './ConfiguracionUsuario';
 import {
   AlertDialog,
@@ -44,6 +44,7 @@ import ExpulsarUsuarioForm from './ExpulsarUsuarioForm';
 import SecretariaMain from './SecretariaMain';
 import SecretariaSidebar from './SecretariaSidebar';
 import SecretariaTramites from './SecretariaTramites';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 
 const roleToViewMap: Record<string, string> = {
@@ -70,6 +71,12 @@ const viewToRoleMap: Record<string, string> = {
 type UserProfile = {
   role: string[];
 };
+
+type TramiteActivo = {
+    id: string;
+    nombre: string;
+};
+
 
 function LoadingScreen() {
     return (
@@ -99,6 +106,13 @@ function ControladorContent() {
   );
   const { data: userData, isLoading: isUserDataLoading } = useDoc<UserProfile>(userDocRef);
   
+  const tramitesActivosQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'tramitesActivos');
+  }, [firestore]);
+  const { data: tramitesActivos, isLoading: isLoadingTramites } = useCollection<TramiteActivo>(tramitesActivosQuery);
+
+
   const [direccionActiveView, setDireccionActiveView] = useState<'main' | 'createUser' | 'editUser' | 'subRole' | 'crearMensaje' | 'bandejaDeEntrada' | 'configuracion'>('main');
   const [subRoleView, setSubRoleView] = useState('');
 
@@ -476,19 +490,38 @@ const renderSecretariaContent = () => {
         );
       case 'ciudadano':
         return (
-          <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
-            <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
-            <div className="flex-grow flex flex-col items-center justify-center p-4 bg-cover bg-center space-y-8"
-              style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
-              aria-label="Fondo abstracto con formas geométricas y colores pastel."
-            >
-              <div className="bg-white/90 dark:bg-black/80 p-8 rounded-xl shadow-lg text-center">
-                  <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes Futuras</h1>
-                  <p className="text-gray-600 dark:text-gray-300 mt-2">Este espacio está reservado para futuras funcionalidades.</p>
+            <div className="flex flex-col w-full h-screen bg-gray-50/50 dark:bg-gray-900/50">
+              <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
+              <div className="flex-grow flex flex-col p-4 bg-cover bg-center"
+                style={{ backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')" }}
+                aria-label="Fondo abstracto con formas geométricas y colores pastel."
+              >
+                  <h2 className="text-2xl font-bold mb-6 text-white">Trámites Disponibles</h2>
+                  {isLoadingTramites ? (
+                      <p className="text-white">Cargando trámites...</p>
+                  ) : tramitesActivos && tramitesActivos.length > 0 ? (
+                      <div className="space-y-4">
+                          {tramitesActivos.map((tramite) => (
+                              <Card key={tramite.id} className="bg-white/90 dark:bg-black/80">
+                                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+                                      <CardTitle className="text-base font-medium">
+                                          {tramite.nombre}
+                                      </CardTitle>
+                                      <Button>Abrir</Button>
+                                  </CardHeader>
+                              </Card>
+                          ))}
+                      </div>
+                  ) : (
+                      <Card className="bg-white/90 dark:bg-black/80">
+                          <CardContent className="p-6 text-center">
+                              <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
+                          </CardContent>
+                      </Card>
+                  )}
               </div>
             </div>
-          </div>
-        );
+          );
       default:
         return (
           <div className="flex-grow flex flex-col items-center justify-center text-center">
