@@ -429,9 +429,10 @@
         "sexo": { "type": "string", "enum": ["Hombre", "Mujer", "Otro"] },
         "nacionalidad": { "type": "string" },
         "quiereAccederSem": { "type": "boolean" },
-        "creadoEn": { "type": "string", "format": "date-time" }
+        "creadoEn": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pendiente", "aprobado", "rechazado"] }
       },
-      "required": ["nombre", "apellidos", "dni", "fechaNacimiento", "usuarioDiscord", "sexo", "nacionalidad", "quiereAccederSem", "creadoEn"]
+      "required": ["nombre", "apellidos", "dni", "fechaNacimiento", "usuarioDiscord", "sexo", "nacionalidad", "quiereAccederSem", "creadoEn", "status"]
     }
   },
   "auth": {
