@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, query, where, doc, setDoc, deleteDoc, serverTimestamp, onSnapshot, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, deleteField, onSnapshot, getDoc, updateDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -15,11 +15,7 @@ import { cn } from "@/lib/utils";
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import HistorialFaltasAlumno from './HistorialFaltasAlumno';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { deleteField } from 'firebase/firestore';
+import { serverTimestamp } from 'firebase/firestore';
 
 type UserDoc = {
   id: string;
@@ -304,8 +300,8 @@ export default function FaltasPorMateria() {
             <TooltipProvider>
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {semUsers && semUsers.map(user => {
-                    const userStatus = getStatusForUser(user.id) || 'asiste';
-                    const config = statusConfig[userStatus];
+                    const userStatus = getStatusForUser(user.id);
+                    const config = userStatus ? statusConfig[userStatus] : statusConfig['asiste'];
                     const justificacion = getJustificacionForUser(user.id);
                     const isFullDayAbsence = userStatus === 'falta_injustificada_completa' || userStatus === 'falta_justificada_completa';
                     const feedback = getFeedbackForUser(user.id);
@@ -325,14 +321,11 @@ export default function FaltasPorMateria() {
                                 <p className="font-semibold text-sm flex-1 pt-2">{user.username}</p>
                                 
                                 {isFullDayAbsence ? (
-                                    <div className="flex items-center gap-2 w-full justify-center">
-                                         <div className={cn(
-                                             "flex items-center justify-center h-8 px-3 border rounded-md font-medium text-xs",
-                                             userStatus === 'falta_justificada_completa' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
-                                         )}>
-                                            {userStatus === 'falta_justificada_completa' ? 'Just' : 'Inj'}
-                                        </div>
-                                        <span className="text-xs text-muted-foreground font-semibold">Día completo</span>
+                                     <div className={cn(
+                                         "flex items-center justify-center h-8 px-3 border rounded-md font-medium text-xs w-full",
+                                         userStatus === 'falta_justificada_completa' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
+                                     )}>
+                                        {userStatus === 'falta_justificada_completa' ? 'Justificado (Día C.)' : 'Injustificado (Día C.)'}
                                     </div>
                                 ) : (
                                     config && (
