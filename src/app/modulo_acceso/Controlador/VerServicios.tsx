@@ -35,14 +35,16 @@ export default function VerServicios() {
   
   const serviciosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    if (selectedUserId && selectedUserId !== 'todos') {
-      return query(
+    
+    if (selectedUserId === 'todos') {
+        return query(collection(firestore, 'servicios'), orderBy('startTime', 'desc'));
+    }
+    
+    return query(
         collection(firestore, 'servicios'),
         where('semUserId', '==', selectedUserId),
         orderBy('startTime', 'desc')
-      );
-    }
-    return query(collection(firestore, 'servicios'), orderBy('startTime', 'desc'));
+    );
   }, [firestore, selectedUserId]);
   
   const { data: servicios, isLoading: isLoadingServicios } = useCollection<ServicioDoc>(serviciosQuery);
