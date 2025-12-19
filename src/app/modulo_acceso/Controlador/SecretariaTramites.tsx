@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useFirestore } from "@/firebase";
-import { doc, setDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, deleteDoc, collection, query, where, getDocs, writeBatch } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 const tramites = [
@@ -40,14 +40,31 @@ export default function SecretariaTramites() {
         }
     };
     
-    const handleCloseTramite = async (tramiteId: string) => {
+    const handleCloseTramite = async (tramite: {id: string, nombre: string}) => {
         if (!firestore) return;
-        const tramiteRef = doc(firestore, 'tramitesActivos', tramiteId);
+        const tramiteRef = doc(firestore, 'tramitesActivos', tramite.id);
+        
         try {
-            await deleteDoc(tramiteRef);
+            const batch = writeBatch(firestore);
+
+            // 1. Delete the active "trámite"
+            batch.delete(tramiteRef);
+
+            // 2. Find and delete all related inscriptions
+            const inscripcionesCollection = collection(firestore, 'inscripcionesTramites');
+            const q = query(inscripcionesCollection, where('tramiteId', '==', tramite.id));
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            // 3. Commit the batch
+            await batch.commit();
+
             toast({
-                title: 'Trámite Desactivado',
-                description: `El trámite ha sido cerrado para los ciudadanos.`,
+                title: 'Trámite Desactivado y Reiniciado',
+                description: `El trámite "${tramite.nombre}" ha sido cerrado y las inscripciones reiniciadas.`,
                 variant: 'destructive'
             });
         } catch (error) {
@@ -72,7 +89,7 @@ export default function SecretariaTramites() {
                                 </CardTitle>
                                 <div className="flex gap-2">
                                     <Button onClick={() => handleOpenTramite(tramite)}>Activar</Button>
-                                    <Button variant="destructive" onClick={() => handleCloseTramite(tramite.id)}>Desactivar</Button>
+                                    <Button variant="destructive" onClick={() => handleCloseTramite(tramite)}>Desactivar</Button>
                                 </div>
                             </CardHeader>
                         </Card>
