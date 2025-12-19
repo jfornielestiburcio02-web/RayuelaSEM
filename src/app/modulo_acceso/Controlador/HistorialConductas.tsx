@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp, where } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -102,9 +102,9 @@ export default function HistorialConductas() {
                     {!isLoading && conductas && conductas.length > 0 && (
                         <Accordion type="single" collapsible className="w-full space-y-4">
                             {conductas.map((conducta) => (
-                                <AccordionItem value={conducta.id} key={conducta.id}>
+                                <AccordionItem value={conducta.id} key={conducta.id} className="border-b-0">
                                      <Card className='overflow-hidden'>
-                                        <AccordionTrigger className="p-6 text-left hover:no-underline">
+                                        <AccordionTrigger className="p-6 text-left hover:no-underline [&[data-state=open]]:border-b">
                                             <div className='flex-1 grid grid-cols-1 md:grid-cols-4 items-center gap-4'>
                                                 <div>
                                                     <p className="font-bold text-base">{conducta.alumnoName}</p>
@@ -122,7 +122,7 @@ export default function HistorialConductas() {
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            <CardContent className='pt-0 pb-6 px-6'>
+                                            <CardContent className='pt-4 pb-6 px-6'>
                                                 <div className='prose prose-sm dark:prose-invert max-w-none space-y-4'>
                                                     <div>
                                                         <h4 className='font-semibold'>Descripción del Incidente:</h4>
@@ -139,7 +139,7 @@ export default function HistorialConductas() {
                                                         </div>
                                                     )}
                                                     
-                                                    {conducta.aplicaCorreccion && (
+                                                    {conducta.aplicaCorreccion && conducta.tipoCorreccion &&(
                                                         <div>
                                                             <h4 className='font-semibold'>Corrección Aplicada:</h4>
                                                             <p>{conducta.tipoCorreccion}</p>
