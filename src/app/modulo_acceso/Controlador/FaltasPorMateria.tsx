@@ -142,7 +142,6 @@ export default function FaltasPorMateria() {
     const asistenciaRef = doc(firestore, 'asistencia', asistenciaId);
 
     const currentIndex = currentStatus ? statusCycle.indexOf(currentStatus) : -1;
-    const nextIndex = (currentIndex + 1) % statusCycle.length;
     
     // If we've cycled through all states, it means we go back to 'asiste' which means deleting the record or status field.
     if (currentIndex === statusCycle.length - 1) {
@@ -152,15 +151,13 @@ export default function FaltasPorMateria() {
             await deleteDoc(asistenciaRef);
         }
     } else {
-        const nextStatus = statusCycle[nextIndex];
+        const nextStatus = statusCycle[currentIndex + 1];
         const dataToSet: Partial<AsistenciaDoc> = {
             status: nextStatus,
             recordedBy: instructor.uid,
             timestamp: serverTimestamp(),
-            id: asistenciaId,
-            userId: userId,
-            date: dateKey,
         };
+        // Use set with merge to create the document if it doesn't exist.
         await setDoc(asistenciaRef, dataToSet, { merge: true });
     }
   };
@@ -188,9 +185,6 @@ export default function FaltasPorMateria() {
              if (!newFeedback) return; // No need to create a doc just to remove feedback
             dataToSet = {
                 ...dataToSet,
-                id: asistenciaId,
-                userId: userId,
-                date: dateKey,
                 recordedBy: instructor.uid,
                 timestamp: serverTimestamp()
             };
@@ -321,8 +315,15 @@ export default function FaltasPorMateria() {
                                 <p className="font-semibold text-sm flex-1 pt-2">{user.username}</p>
                                 
                                 {isFullDayAbsence ? (
-                                     <div className="flex items-center justify-center h-8 px-3 border rounded-md font-medium text-xs w-full bg-gray-200 text-gray-800 border-gray-300">
-                                        {userStatus === 'falta_justificada_completa' ? 'Justificado (Día C.)' : 'Injustificado (Día C.)'}
+                                    <div className="flex items-center justify-center gap-2 h-8 w-full">
+                                        <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
+                                            <span className={cn('font-bold',
+                                                userStatus === 'falta_injustificada_completa' ? 'text-red-600' : 'text-green-600'
+                                            )}>
+                                                {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
                                     </div>
                                 ) : (
                                     config && (
