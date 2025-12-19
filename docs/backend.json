@@ -433,6 +433,20 @@
         "status": { "type": "string", "enum": ["pendiente", "aprobado", "rechazado"] }
       },
       "required": ["nombre", "apellidos", "dni", "fechaNacimiento", "usuarioDiscord", "sexo", "nacionalidad", "quiereAccederSem", "creadoEn", "status"]
+    },
+    "AnuncioSecretaria": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnuncioSecretaria",
+      "type": "object",
+      "description": "Represents a public announcement from the secretariat.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the announcement." },
+        "titulo": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "descripcion": { "type": "string" },
+        "creadoEn": { "type": "string", "format": "date-time" }
+      },
+      "required": ["titulo", "descripcion", "creadoEn"]
     }
   },
   "auth": {
@@ -563,6 +577,17 @@
           "description": "Stores applications for SEM access submitted via the public form.",
           "params": [
             { "name": "solicitudId", "description": "The unique ID of the access application." }
+          ]
+        }
+      },
+      {
+        "path": "/anunciosSecretaria/{anuncioId}",
+        "definition": {
+          "entityName": "AnuncioSecretaria",
+          "schema": { "$ref": "#/backend/entities/AnuncioSecretaria" },
+          "description": "Stores public announcements from the secretariat.",
+          "params": [
+            { "name": "anuncioId", "description": "The unique ID of the public announcement." }
           ]
         }
       }

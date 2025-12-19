@@ -26,7 +26,7 @@ import MisFeedbacks from './MisFeedbacks';
 import { Button } from '@/components/ui/button';
 import PersonalAbsentista from './PersonalAbsentista';
 import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
-import { doc, collection, query, where } from 'firebase/firestore';
+import { doc, collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import ConfiguracionUsuario from './ConfiguracionUsuario';
 import {
   AlertDialog,
@@ -49,7 +49,9 @@ import InscripcionTramiteDialog from './InscripcionTramiteDialog';
 import SecretariaSolicitudes from './SecretariaSolicitudes';
 import { cn } from '@/lib/utils';
 import SolicitudesAccesoSem from './SolicitudesAccesoSem';
-
+import AnunciosSecretaria from './AnunciosSecretaria';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const roleToViewMap: Record<string, string> = {
     'SEM': 'sem',
@@ -87,6 +89,14 @@ type InscripcionTramite = {
     userId: string;
     status: 'pendiente' | 'aprobado' | 'rechazado';
 }
+
+type AnuncioSecretariaDoc = {
+    id: string;
+    titulo: string;
+    imageUrl?: string;
+    descripcion: string;
+    creadoEn: Timestamp;
+};
 
 
 function LoadingScreen() {
@@ -129,6 +139,11 @@ function ControladorContent() {
   }, [firestore, user]);
   const { data: inscripciones, isLoading: isLoadingInscripciones } = useCollection<InscripcionTramite>(inscripcionesQuery);
 
+  const anunciosSecretariaQuery = useMemoFirebase(
+      () => firestore ? query(collection(firestore, 'anunciosSecretaria'), orderBy('creadoEn', 'desc')) : null,
+      [firestore]
+  );
+  const { data: anunciosSecretaria, isLoading: isLoadingAnuncios } = useCollection<AnuncioSecretariaDoc>(anunciosSecretariaQuery);
 
   const [direccionActiveView, setDireccionActiveView] = useState<'main' | 'createUser' | 'editUser' | 'subRole' | 'crearMensaje' | 'bandejaDeEntrada' | 'configuracion'>('main');
   const [subRoleView, setSubRoleView] = useState('');
@@ -141,7 +156,7 @@ function ControladorContent() {
   
   const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
 
-  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso'>('tramites');
+  const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar'>('tramites');
 
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
@@ -228,7 +243,7 @@ function ControladorContent() {
       setFaccionesLegalesActiveView(option);
   }
 
-  const handleSecretariaSidebarSelection = (option: 'tramites' | 'solicitudes' | 'solicitudesAcceso') => {
+  const handleSecretariaSidebarSelection = (option: 'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar') => {
     setSecretariaActiveView(option);
   }
 
@@ -377,6 +392,8 @@ const renderSecretariaContent = () => {
         return <SecretariaSolicitudes />;
     case 'solicitudesAcceso':
         return <SolicitudesAccesoSem />;
+    case 'anunciar':
+        return <AnunciosSecretaria />;
     default:
       return <SecretariaMain />;
   }
@@ -510,20 +527,22 @@ const renderSecretariaContent = () => {
             </div>
         );
       case 'ciudadano':
-        const isLoading = isLoadingTramites || isLoadingInscripciones;
+        const isLoading = isLoadingTramites || isLoadingInscripciones || isLoadingAnuncios;
         const inscripcionesMap = new Map(inscripciones?.map(i => [i.tramiteId, i.status]));
+        const formatDate = (timestamp?: Timestamp) => timestamp ? format(timestamp.toDate(), 'PPP', { locale: es }) : '';
+
 
         return (
             <div className="flex flex-col w-full h-screen bg-white">
               <DireccionHeader currentView={view} onSelectSubRole={handleSubRoleClick} onOpenConfig={openConfig} />
-              <div className="flex-grow flex flex-col p-6">
+              <div className="flex-grow flex flex-col p-6 space-y-8 overflow-auto">
                  <Card>
                     <CardHeader>
                         <CardTitle>Trámites Disponibles</CardTitle>
                         <CardDescription>Estos son los cursos y trámites a los que te puedes inscribir.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {isLoading ? (
+                        {isLoadingTramites ? (
                             <p>Cargando trámites...</p>
                         ) : tramitesActivos && tramitesActivos.length > 0 ? (
                             <div className="space-y-4">
@@ -560,6 +579,41 @@ const renderSecretariaContent = () => {
                         ) : (
                             <div className="p-6 text-center">
                                 <p className="text-muted-foreground">No hay trámites disponibles en este momento.</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Anuncios</CardTitle>
+                        <CardDescription>Anuncios importantes de la Secretaría.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoadingAnuncios ? (
+                             <p>Cargando anuncios...</p>
+                        ) : anunciosSecretaria && anunciosSecretaria.length > 0 ? (
+                            <div className="space-y-6">
+                                {anunciosSecretaria.map((anuncio) => (
+                                    <Card key={anuncio.id} className="overflow-hidden">
+                                        {anuncio.imageUrl && (
+                                            <div className="relative h-48 w-full">
+                                                <Image src={anuncio.imageUrl} alt={anuncio.titulo} layout="fill" objectFit="cover" />
+                                            </div>
+                                        )}
+                                        <CardHeader>
+                                            <CardTitle>{anuncio.titulo}</CardTitle>
+                                            <CardDescription>{formatDate(anuncio.creadoEn)}</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-sm whitespace-pre-wrap">{anuncio.descripcion}</p>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                             <div className="p-6 text-center">
+                                <p className="text-muted-foreground">No hay anuncios en este momento.</p>
                             </div>
                         )}
                     </CardContent>

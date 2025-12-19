@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { FileText, Inbox, Users } from "lucide-react";
+import { FileText, Inbox, Users, Megaphone } from "lucide-react";
 
 type SecretariaSidebarProps = {
-    onSelectOption: (option: 'tramites' | 'solicitudes' | 'solicitudesAcceso') => void;
+    onSelectOption: (option: 'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar') => void;
 };
 
 export default function SecretariaSidebar({ onSelectOption }: SecretariaSidebarProps) {
@@ -26,6 +26,11 @@ export default function SecretariaSidebar({ onSelectOption }: SecretariaSidebarP
         <span>Solicitudes Acceso SEM</span>
       </Button>
       
+      <Button variant="ghost" className="justify-start gap-2" onClick={() => onSelectOption('anunciar')}>
+        <Megaphone className="h-5 w-5" />
+        <span>Anunciar</span>
+      </Button>
+
     </div>
   )
 }
