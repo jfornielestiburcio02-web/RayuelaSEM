@@ -15,6 +15,11 @@ type UserDoc = {
   username: string;
 };
 
+type ConductaDoc = {
+  id: string;
+  alumnoId: string;
+}
+
 export default function ConductasGraves() {
   const firestore = useFirestore();
   const [selectedUser, setSelectedUser] = useState<UserDoc | null>(null);
@@ -24,7 +29,23 @@ export default function ConductasGraves() {
     () => (firestore ? query(collection(firestore, 'users'), where('role', 'array-contains', 'SEM')) : null),
     [firestore]
   );
-  const { data: users, isLoading } = useCollection<UserDoc>(usersQuery);
+  const { data: users, isLoading: isLoadingUsers } = useCollection<UserDoc>(usersQuery);
+
+  const conductasQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'conductas') : null),
+    [firestore]
+  );
+  const { data: conductas, isLoading: isLoadingConductas } = useCollection<ConductaDoc>(conductasQuery);
+
+  const conductCounts = useMemo(() => {
+    if (!conductas) return new Map<string, number>();
+    const counts = new Map<string, number>();
+    for (const conducta of conductas) {
+      counts.set(conducta.alumnoId, (counts.get(conducta.alumnoId) || 0) + 1);
+    }
+    return counts;
+  }, [conductas]);
+
 
   const handleNewRegistro = (user: UserDoc) => {
     setSelectedUser(user);
@@ -35,6 +56,8 @@ export default function ConductasGraves() {
     setIsFormOpen(false);
     setSelectedUser(null);
   };
+  
+  const isLoading = isLoadingUsers || isLoadingConductas;
 
   return (
     <div className="flex-grow p-6 overflow-auto bg-gray-50 dark:bg-gray-900/50">
@@ -73,7 +96,7 @@ export default function ConductasGraves() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
-                      <TableCell>0</TableCell>
+                      <TableCell>{conductCounts.get(user.id) || 0}</TableCell>
                     </TableRow>
                   ))
                 ) : (
