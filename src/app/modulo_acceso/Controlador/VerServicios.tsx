@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp, where } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp, where, onSnapshot } from 'firebase/firestore';
 import { format, formatDistanceStrict } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -26,6 +26,8 @@ type ServicioDoc = {
 export default function VerServicios() {
   const firestore = useFirestore();
   const [selectedUserId, setSelectedUserId] = useState<string>('todos');
+  const [servicios, setServicios] = useState<ServicioDoc[]>([]);
+  const [isLoadingServicios, setIsLoadingServicios] = useState(true);
 
   const usersQuery = useMemoFirebase(
     () => firestore ? query(collection(firestore, 'users'), where('role', 'array-contains', 'SEM')) : null,
@@ -33,22 +35,34 @@ export default function VerServicios() {
   );
   const { data: users, isLoading: isLoadingUsers } = useCollection<UserDoc>(usersQuery);
   
-  const serviciosQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    
+  useEffect(() => {
+    if (!firestore) return;
+
+    setIsLoadingServicios(true);
+    let q;
     if (selectedUserId === 'todos') {
-        return query(collection(firestore, 'servicios'), orderBy('startTime', 'desc'));
+        q = query(collection(firestore, 'servicios'), orderBy('startTime', 'desc'));
+    } else {
+        q = query(
+            collection(firestore, 'servicios'),
+            where('semUserId', '==', selectedUserId),
+            orderBy('startTime', 'desc')
+        );
     }
-    
-    return query(
-        collection(firestore, 'servicios'),
-        where('semUserId', '==', selectedUserId),
-        orderBy('startTime', 'desc')
-    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const servicesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServicioDoc));
+        setServicios(servicesData);
+        setIsLoadingServicios(false);
+    }, (error) => {
+        console.error("Error fetching services: ", error);
+        setIsLoadingServicios(false);
+    });
+
+    // Cleanup subscription on component unmount or when selectedUserId changes
+    return () => unsubscribe();
   }, [firestore, selectedUserId]);
   
-  const { data: servicios, isLoading: isLoadingServicios } = useCollection<ServicioDoc>(serviciosQuery);
-
   const formatDate = (timestamp: Timestamp | null | undefined) => {
     if (!timestamp) return '-';
     return format(timestamp.toDate(), 'PPP p', { locale: es });
