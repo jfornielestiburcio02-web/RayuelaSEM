@@ -25,7 +25,7 @@ type ServicioDoc = {
 
 export default function VerServicios() {
   const firestore = useFirestore();
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedUserId, setSelectedUserId] = useState<string>('todos');
 
   const usersQuery = useMemoFirebase(
     () => firestore ? query(collection(firestore, 'users'), where('role', 'array-contains', 'SEM')) : null,
@@ -35,7 +35,7 @@ export default function VerServicios() {
   
   const serviciosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    if (selectedUserId) {
+    if (selectedUserId && selectedUserId !== 'todos') {
       return query(
         collection(firestore, 'servicios'),
         where('semUserId', '==', selectedUserId),
@@ -74,7 +74,7 @@ export default function VerServicios() {
                         <SelectValue placeholder="Todos los alumnos" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">Todos los alumnos</SelectItem>
+                        <SelectItem value="todos">Todos los alumnos</SelectItem>
                         {users?.map(user => (
                             <SelectItem key={user.id} value={user.id}>{user.username}</SelectItem>
                         ))}
