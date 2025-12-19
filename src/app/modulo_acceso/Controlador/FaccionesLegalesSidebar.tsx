@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { FolderKanban, Gavel, FileClock, ShieldCheck, MessageSquare, Inbox } from "lucide-react";
+import { FolderKanban, Gavel, FileClock, ShieldCheck, MessageSquare, Inbox, BookUser } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 type FaccionesLegalesSidebarProps = {
-    onSelectOption: (option: 'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada') => void;
+    onSelectOption: (option: 'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada' | 'historialConductas') => void;
 };
 
 export default function FaccionesLegalesSidebar({ onSelectOption }: FaccionesLegalesSidebarProps) {
@@ -42,6 +42,11 @@ export default function FaccionesLegalesSidebar({ onSelectOption }: FaccionesLeg
       <Button variant="ghost" className="justify-start gap-2" onClick={() => onSelectOption('conducta')}>
         <ShieldCheck className="h-5 w-5" />
         <span>Conducta</span>
+      </Button>
+      
+      <Button variant="ghost" className="justify-start gap-2" onClick={() => onSelectOption('historialConductas')}>
+        <BookUser className="h-5 w-5" />
+        <span>Registro de Conductas</span>
       </Button>
 
       <Button variant="ghost" className="justify-start gap-2" onClick={() => onSelectOption('expulsarUsuario')}>

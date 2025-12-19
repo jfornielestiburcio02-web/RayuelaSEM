@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { ClipboardCheck, FileCheck, Megaphone, History, FilePlus, Clock, SmilePlus, MessageSquare } from "lucide-react";
+import { ClipboardCheck, FileCheck, Megaphone, History, FilePlus, Clock, SmilePlus, MessageSquare, ShieldAlert } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   } from "@/components/ui/dropdown-menu"
 
 type SemSidebarProps = {
-    onSelectOption: (option: 'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria') => void;
+    onSelectOption: (option: 'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'conductasGraves') => void;
 };
 
 export default function SemSidebar({ onSelectOption }: SemSidebarProps) {
@@ -59,6 +59,7 @@ export default function SemSidebar({ onSelectOption }: SemSidebarProps) {
           <DropdownMenuLabel>Mi Conducta</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onSelectOption('misFeedbacks')}>Negativos y Positivos</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSelectOption('conductasGraves')}>Conductas Graves/Contrarias</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

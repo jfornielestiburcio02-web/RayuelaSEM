@@ -54,6 +54,8 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import ConductasGraves from './ConductasGraves';
+import MisConductas from './MisConductas';
+import HistorialConductas from './HistorialConductas';
 
 const roleToViewMap: Record<string, string> = {
     'SEM': 'sem',
@@ -160,9 +162,9 @@ function ControladorContent() {
   const [direccionActiveView, setDireccionActiveView] = useState<'main' | 'createUser' | 'editUser' | 'subRole' | 'crearMensaje' | 'bandejaDeEntrada' | 'configuracion'>('main');
   const [subRoleView, setSubRoleView] = useState('');
   const [instructorActiveView, setInstructorActiveView] = useState<'main' | 'faltasPorMateria' | 'informesEnviados' | 'gestionFaltas' | 'verServicios' | 'crearAnuncio' | 'registrosFeedback' | 'bandejaDeEntrada' | 'configuracion'>('main');
-  const [semActiveView, setSemActiveView] = useState<'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'configuracion'>('anuncios');
+  const [semActiveView, setSemActiveView] = useState<'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'conductasGraves' | 'configuracion'>('anuncios');
   const [gestionSemActiveView, setGestionSemActiveView] = useState<'main' | 'personalAbsentista' | 'conductasGraves'>('main');
-  const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada'>('expedientesAbsentistas');
+  const [faccionesLegalesActiveView, setFaccionesLegalesActiveView] = useState<'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada' | 'historialConductas'>('expedientesAbsentistas');
   const [secretariaActiveView, setSecretariaActiveView] = useState<'tramites' | 'solicitudes' | 'solicitudesAcceso' | 'anunciar'>('tramites');
   const [showConductasAlert, setShowConductasAlert] = useState(false);
 
@@ -324,11 +326,11 @@ function ControladorContent() {
       setInstructorActiveView(option);
   }
 
-  const handleSemSidebarSelection = (option: 'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria') => {
+  const handleSemSidebarSelection = (option: 'anuncios' | 'misFaltas' | 'nuevaJustificacion' | 'historialJustificaciones' | 'crearInforme' | 'servicio' | 'misFeedbacks' | 'mensajeria' | 'conductasGraves') => {
     setSemActiveView(option);
   }
   
-  const handleFaccionesLegalesSidebarSelection = (option: 'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada') => {
+  const handleFaccionesLegalesSidebarSelection = (option: 'expedientesAbsentistas' | 'faltasAsistencia' | 'conducta' | 'expulsarUsuario' | 'enviarMensaje' | 'bandejaDeEntrada' | 'historialConductas') => {
       setFaccionesLegalesActiveView(option);
   }
 
@@ -428,6 +430,8 @@ function ControladorContent() {
             return <MisFeedbacks />;
         case 'mensajeria':
             return <CrearAnuncioForm />;
+        case 'conductasGraves':
+            return <MisConductas />;
         case 'configuracion':
             return <ConfiguracionUsuario />;
         default:
@@ -470,6 +474,8 @@ function ControladorContent() {
             return <CrearAnuncioForm />;
         case 'bandejaDeEntrada':
             return <VerAnuncios />;
+        case 'historialConductas':
+            return <HistorialConductas />;
         default:
             return (
               <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
