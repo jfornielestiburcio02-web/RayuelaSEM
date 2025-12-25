@@ -517,7 +517,7 @@ export default function GestionFaltas() {
             );
         }
 
-        const weekDays = Array.from({ length: 5 }, (_, i) => addDays(currentWeekStart, i));
+        const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
 
         return (
              <div className="flex-grow p-6 overflow-auto bg-gray-50 dark:bg-gray-900/50">
@@ -537,17 +537,20 @@ export default function GestionFaltas() {
                 <Card>
                     <CardContent className="p-0">
                         <div className="border rounded-lg">
-                            <div className="flex items-center justify-between p-4">
-                                <Button variant="ghost" onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}>
-                                    <ChevronLeft className="h-4 w-4 mr-2" />
-                                    Anterior
+                            <div className="flex items-center justify-between p-2">
+                                <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}>
+                                    <ChevronLeft className="h-4 w-4 mr-1" />
+                                    Ant
                                 </Button>
-                                <Button variant="ghost" onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}>
-                                    Siguiente
-                                    <ChevronRight className="h-4 w-4 ml-2" />
+                                <span className='text-sm font-medium'>
+                                    {format(currentWeekStart, 'd MMM', { locale: es })} - {format(addDays(currentWeekStart, 6), 'd MMM yyyy', { locale: es })}
+                                </span>
+                                <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}>
+                                    Sig
+                                    <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>
                             </div>
-                            <div className="grid grid-cols-5 border-t">
+                            <div className="grid grid-cols-7 border-t">
                                 {weekDays.map(day => {
                                     const dateKey = format(day, 'yyyy-MM-dd');
                                     const dayAttendance = attendance.get(dateKey);
@@ -557,25 +560,26 @@ export default function GestionFaltas() {
                                     const isJust = status === 'falta_justificada_completa';
 
                                     return (
-                                        <div key={dateKey} className="flex flex-col items-center text-center p-2 border-r last:border-r-0">
-                                            <p className="font-bold text-blue-600 capitalize">{format(day, 'd MMMM', { locale: es })}</p>
-                                            <p className="text-sm text-muted-foreground uppercase">{format(day, 'EEEE', { locale: es })}</p>
-                                            <div className={cn('relative w-full mt-2 pt-8 p-4 rounded-md', {
+                                        <div key={dateKey} className="flex flex-col items-center text-center p-1 border-r last:border-r-0">
+                                            <p className="font-bold text-blue-600 capitalize text-sm">{format(day, 'd MMM', { locale: es })}</p>
+                                            <p className="text-xs text-muted-foreground uppercase">{format(day, 'E', { locale: es })}</p>
+                                            <div className={cn('relative w-full mt-2 pt-6 p-2 rounded-md', {
                                                 'bg-red-100 dark:bg-red-900/50': isInj,
                                                 'bg-green-100 dark:bg-green-900/50': isJust
                                             })}>
                                                 {renderJustificationIcon(dayAttendance?.justificacion)}
-                                                <div className="flex justify-center gap-2">
+                                                <div className="flex justify-center gap-1">
                                                     <Button 
                                                         size="sm"
                                                         variant={isInj ? 'destructive' : 'outline'}
-                                                        onClick={() => handleAttendanceAction(day, 'inj')}>
+                                                        onClick={() => handleAttendanceAction(day, 'inj')}
+                                                        className="px-2 h-7 text-xs">
                                                         Inj
                                                     </Button>
                                                     <Button 
                                                         size="sm"
                                                         variant={isJust ? 'default' : 'outline'}
-                                                        className={cn(isJust && 'bg-green-600 hover:bg-green-700')}
+                                                        className={cn('px-2 h-7 text-xs', isJust && 'bg-green-600 hover:bg-green-700')}
                                                         onClick={() => handleAttendanceAction(day, 'just')}>
                                                         Just
                                                     </Button>
