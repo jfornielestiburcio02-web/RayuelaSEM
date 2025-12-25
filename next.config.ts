@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'rayuela.educarex.es',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
