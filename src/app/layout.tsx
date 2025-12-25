@@ -1,13 +1,13 @@
 import type {Metadata} from 'next';
-import { Roboto_Slab } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
-const robotoSlab = Roboto_Slab({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-roboto-slab',
+  variable: '--font-inter',
 });
 
 
@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
       </head>
-      <body className={`${robotoSlab.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <FirebaseClientProvider>
           {children}
           <Toaster />
