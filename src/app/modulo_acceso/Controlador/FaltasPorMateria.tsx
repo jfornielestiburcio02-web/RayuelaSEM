@@ -349,23 +349,27 @@ export default function FaltasPorMateria() {
                                 )}
 
                                 {!isFullDayAbsence && userStatus !== 'justificada' && (
-                                    <div className="flex gap-4 pt-1">
-                                        <Image
-                                            src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
-                                            alt="Feedback positivo"
-                                            width={24}
-                                            height={24}
-                                            onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
-                                            className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                        />
-                                        <Image
-                                            src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
-                                            alt="Feedback negativo"
-                                            width={24}
-                                            height={24}
-                                            onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
-                                            className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                        />
+                                    <div className="flex items-center justify-center gap-4 pt-1">
+                                        <div className="flex flex-col items-center">
+                                            <Image
+                                                src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
+                                                alt="Feedback positivo"
+                                                width={24}
+                                                height={24}
+                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
+                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <Image
+                                                src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
+                                                alt="Feedback negativo"
+                                                width={24}
+                                                height={24}
+                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
+                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
