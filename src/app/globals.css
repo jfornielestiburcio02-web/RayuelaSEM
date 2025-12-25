@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: "Segoe UI Web";
+    src: url("/fonts/SegoeUI.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Segoe UI Web";
+    src: url("/fonts/SegoeUI-Bold.ttf") format("truetype");
+    font-weight: bold;
+  }
+
   :root {
     --background: 255 100% 98.6%;
     --foreground: 240 10% 3.9%;

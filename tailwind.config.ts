@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Segoe UI'],
+        sans: ['"Segoe UI Web"', 'Arial', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
