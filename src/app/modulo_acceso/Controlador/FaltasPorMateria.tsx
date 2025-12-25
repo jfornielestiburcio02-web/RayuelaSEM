@@ -237,6 +237,23 @@ export default function FaltasPorMateria() {
         );
   }
 
+  const getFeedbackImage = (type: 'positivo' | 'negativo', isSet: boolean, isEnabled: boolean) => {
+      if (!isEnabled) {
+          return type === 'positivo' 
+              ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo_off.png' 
+              : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo_off.png';
+      }
+      if (isSet) {
+          return type === 'positivo' 
+              ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo.png'
+              : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo.png';
+      }
+      return type === 'positivo'
+          ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo_on.png'
+          : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo_on.png';
+  }
+
+
   if (selectedUser) {
     return <HistorialFaltasAlumno user={selectedUser} onBack={() => setSelectedUser(null)} />;
   }
@@ -270,7 +287,7 @@ export default function FaltasPorMateria() {
                         onSelect={setSelectedDate}
                         initialFocus
                         locale={es}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        disabled={(date) => date > new Date()}
                     />
                 </PopoverContent>
             </Popover>
@@ -295,7 +312,7 @@ export default function FaltasPorMateria() {
                     const justificacion = getJustificacionForUser(user.id);
                     const isFullDayAbsence = userStatus === 'falta_injustificada_completa' || userStatus === 'falta_justificada_completa';
                     const feedback = getFeedbackForUser(user.id);
-                    const isFeedbackDisabled = userStatus === 'injustificada' || userStatus === 'justificada';
+                    const isFeedbackEnabled = !(userStatus === 'injustificada' || userStatus === 'justificada');
                     
                     return (
                         <Card key={user.id} className="overflow-hidden shadow-sm flex flex-col">
@@ -332,25 +349,22 @@ export default function FaltasPorMateria() {
                                 )}
 
                                 {!isFullDayAbsence && userStatus !== 'justificada' && (
-                                    <div className={cn(
-                                        "flex gap-4 pt-1",
-                                        isFeedbackDisabled && "opacity-40 pointer-events-none"
-                                    )}>
-                                        <ThumbsUp 
-                                            onClick={() => !isFeedbackDisabled && handleFeedbackChange(user.id, 'positivo')}
-                                            className={cn(
-                                                "h-5 w-5 text-black cursor-pointer hover:text-gray-700 transition-colors",
-                                                feedback === 'positivo' && 'text-green-600',
-                                                !isFeedbackDisabled && "cursor-pointer"
-                                            )} 
+                                    <div className="flex gap-4 pt-1">
+                                        <Image
+                                            src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
+                                            alt="Feedback positivo"
+                                            width={24}
+                                            height={24}
+                                            onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
+                                            className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
                                         />
-                                        <ThumbsDown 
-                                            onClick={() => !isFeedbackDisabled && handleFeedbackChange(user.id, 'negativo')}
-                                            className={cn(
-                                                "h-5 w-5 text-black cursor-pointer hover:text-gray-700 transition-colors",
-                                                feedback === 'negativo' && 'text-red-600',
-                                                !isFeedbackDisabled && "cursor-pointer"
-                                            )} 
+                                        <Image
+                                            src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
+                                            alt="Feedback negativo"
+                                            width={24}
+                                            height={24}
+                                            onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
+                                            className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
                                         />
                                     </div>
                                 )}
