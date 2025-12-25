@@ -10,10 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Times New Roman', 'Times', 'serif'],
-        body: ['Times New Roman', 'Times', 'serif'],
-        headline: ['Times New Roman', 'Times', 'serif'],
-        code: ['monospace'],
+        sans: ['Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
