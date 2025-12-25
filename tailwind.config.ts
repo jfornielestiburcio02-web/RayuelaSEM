@@ -10,9 +10,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        body: ['Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        headline: ['Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        sans: ['Times New Roman', 'Times', 'serif'],
+        body: ['Times New Roman', 'Times', 'serif'],
+        headline: ['Times New Roman', 'Times', 'serif'],
         code: ['monospace'],
       },
       colors: {
