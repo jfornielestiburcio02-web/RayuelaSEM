@@ -332,48 +332,49 @@ export default function FaltasPorMateria() {
 
                                 <p className="font-semibold text-sm flex-1 pt-2">{user.username}</p>
                                 
-                                {isFullDayAbsence ? (
-                                     <div className="flex items-center justify-center gap-2 h-8 w-full">
-                                         <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
-                                             <span className="font-bold text-xs text-black">
-                                                 {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
-                                             </span>
-                                         </div>
-                                         <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
-                                     </div>
-                                ) : (
-                                    config && (
+                                <div className='w-full'>
+                                    {isFullDayAbsence ? (
+                                        <div className="flex items-center justify-center gap-2 h-8 w-full">
+                                             <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md">
+                                                 <span className="font-bold text-xs text-black">
+                                                     {userStatus === 'falta_injustificada_completa' ? 'Inj' : 'Just'}
+                                                 </span>
+                                             </div>
+                                             <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
+                                        </div>
+                                    ) : (
                                         <Button
                                             onClick={(e) => handleStatusChange(user.id, e)}
-                                            className={cn("w-full transition-all flex flex-col h-auto flex-grow p-2", config.className)}
+                                            className={cn("w-full transition-all text-sm", config.className)}
                                             disabled={isFullDayAbsence || userStatus === 'justificada'}
                                         >
-                                            <span className='text-sm'>{config.text}</span>
-                                            {!isFullDayAbsence && userStatus !== 'justificada' && (
-                                                <div className="flex items-center justify-center gap-4 pt-2">
-                                                    <Image
-                                                        data-feedback-icon="true"
-                                                        src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
-                                                        alt="Feedback positivo"
-                                                        width={24}
-                                                        height={24}
-                                                        onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
-                                                        className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                                    />
-                                                    <Image
-                                                        data-feedback-icon="true"
-                                                        src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
-                                                        alt="Feedback negativo"
-                                                        width={24}
-                                                        height={24}
-                                                        onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
-                                                        className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                                    />
-                                                </div>
-                                            )}
+                                            {config.text}
                                         </Button>
-                                    )
-                                )}
+                                    )}
+                                     {!isFullDayAbsence && userStatus !== 'justificada' && (
+                                        <div className="flex items-center justify-center gap-4 pt-1">
+                                            <Image
+                                                data-feedback-icon="true"
+                                                src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
+                                                alt="Feedback positivo"
+                                                width={24}
+                                                height={24}
+                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
+                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                            />
+                                            <Image
+                                                data-feedback-icon="true"
+                                                src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
+                                                alt="Feedback negativo"
+                                                width={24}
+                                                height={24}
+                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
+                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
                             </CardContent>
                         </Card>
                     )
