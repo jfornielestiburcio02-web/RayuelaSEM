@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, query, where, doc, setDoc, deleteField, onSnapshot, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Calendar as CalendarIcon, ThumbsUp, ThumbsDown, Info } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { es } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import Image from 'next/image';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import HistorialFaltasAlumno from './HistorialFaltasAlumno';
 import { serverTimestamp } from 'firebase/firestore';
 
@@ -130,7 +130,7 @@ export default function FaltasPorMateria() {
 
   const handleStatusChange = async (userId: string, e: React.MouseEvent) => {
     // Stop propagation if the click is on the feedback icons
-    if ((e.target as HTMLElement).closest('[data-feedback-icon]')) {
+    if ((e.target as HTMLElement).closest('[data-feedback-icon]') || (e.target as HTMLElement).closest('[data-justification-trigger]')) {
       e.stopPropagation();
       return;
     }
@@ -221,25 +221,35 @@ export default function FaltasPorMateria() {
   const isLoading = isLoadingUsers || isLoadingAsistencia;
 
   const renderAttendanceIcon = (justificacion?: Justificacion) => {
-        if (!justificacion) return null;
+      if (!justificacion) return null;
 
-        return (
-             <Tooltip>
-                <TooltipTrigger asChild>
-                    <div className="absolute -top-3 -right-3">
-                        <Image 
-                            src="https://i.ibb.co/xS30qyTg/2-1.png"
-                            alt="Estado de asistencia"
-                            width={40}
-                            height={40}
-                        />
-                    </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p className='font-bold'>Justificado: {justificacion.motivo}</p>
-                </TooltipContent>
-            </Tooltip>
-        );
+      return (
+          <DropdownMenu>
+              <DropdownMenuTrigger asChild data-justification-trigger>
+                  <button className="absolute -top-3 -right-3 z-10">
+                      <Image 
+                          src="https://i.ibb.co/xS30qyTg/2-1.png"
+                          alt="Notificación de justificación"
+                          width={40}
+                          height={40}
+                      />
+                  </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="flex items-center gap-2">
+                      <Info className="h-4 w-4" />
+                      <span>Justificación Recibida</span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="p-2 text-sm">
+                      <p className="font-bold">{justificacion.motivo}</p>
+                      {justificacion.descripcion && (
+                          <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{justificacion.descripcion}</p>
+                      )}
+                  </div>
+              </DropdownMenuContent>
+          </DropdownMenu>
+      );
   }
 
   if (selectedUser) {
@@ -292,7 +302,6 @@ export default function FaltasPorMateria() {
                 ))}
              </div>
         ) : (
-            <TooltipProvider>
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {semUsers && semUsers.map(user => {
                     const userStatus = getStatusForUser(user.id);
@@ -363,7 +372,6 @@ export default function FaltasPorMateria() {
                     )
                 })}
             </div>
-            </TooltipProvider>
         )}
 
         {!isLoading && (!semUsers || semUsers.length === 0) && (
