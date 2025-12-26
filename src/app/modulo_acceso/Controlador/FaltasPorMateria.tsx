@@ -242,23 +242,6 @@ export default function FaltasPorMateria() {
         );
   }
 
-  const getFeedbackImage = (type: 'positivo' | 'negativo', isSet: boolean, isEnabled: boolean) => {
-      if (!isEnabled) {
-          return type === 'positivo' 
-              ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo_off.png' 
-              : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo_off.png';
-      }
-      if (isSet) {
-          return type === 'positivo' 
-              ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo.png'
-              : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo.png';
-      }
-      return type === 'positivo'
-          ? 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/positivo_on.png'
-          : 'https://rayuela.educarex.es/segedu/images/cuadernosprofesor/negativo_on.png';
-  }
-
-
   if (selectedUser) {
     return <HistorialFaltasAlumno user={selectedUser} onBack={() => setSelectedUser(null)} />;
   }
@@ -343,34 +326,34 @@ export default function FaltasPorMateria() {
                                              <span className="text-xs font-medium text-muted-foreground">Día Completo</span>
                                         </div>
                                     ) : (
-                                        <Button
-                                            onClick={(e) => handleStatusChange(user.id, e)}
-                                            className={cn("w-full transition-all text-sm", config.className)}
-                                            disabled={isFullDayAbsence || userStatus === 'justificada'}
-                                        >
-                                            {config.text}
-                                        </Button>
-                                    )}
-                                     {!isFullDayAbsence && userStatus !== 'justificada' && (
-                                        <div className="flex items-center justify-center gap-4 pt-1">
-                                            <Image
-                                                data-feedback-icon="true"
-                                                src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
-                                                alt="Feedback positivo"
-                                                width={24}
-                                                height={24}
-                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
-                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                            />
-                                            <Image
-                                                data-feedback-icon="true"
-                                                src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
-                                                alt="Feedback negativo"
-                                                width={24}
-                                                height={24}
-                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
-                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                            />
+                                        <div className='flex flex-col items-center'>
+                                            <Button
+                                                onClick={(e) => handleStatusChange(user.id, e)}
+                                                className={cn("w-full transition-all text-sm mb-2", config.className)}
+                                                disabled={isFullDayAbsence || userStatus === 'justificada'}
+                                            >
+                                                {config.text}
+                                            </Button>
+                                            <div className="flex items-center justify-center gap-4">
+                                                <ThumbsUp
+                                                    data-feedback-icon="true"
+                                                    onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
+                                                    className={cn(
+                                                        'h-6 w-6 transition-colors',
+                                                        isFeedbackEnabled ? 'cursor-pointer hover:text-green-500' : 'cursor-not-allowed opacity-30',
+                                                        feedback === 'positivo' ? 'text-green-600' : 'text-gray-400'
+                                                    )}
+                                                />
+                                                <ThumbsDown
+                                                    data-feedback-icon="true"
+                                                    onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
+                                                    className={cn(
+                                                        'h-6 w-6 transition-colors',
+                                                        isFeedbackEnabled ? 'cursor-pointer hover:text-red-500' : 'cursor-not-allowed opacity-30',
+                                                        feedback === 'negativo' ? 'text-red-600' : 'text-gray-400'
+                                                    )}
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>
