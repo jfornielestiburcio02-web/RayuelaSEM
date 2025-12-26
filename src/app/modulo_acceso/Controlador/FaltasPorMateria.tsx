@@ -128,7 +128,12 @@ export default function FaltasPorMateria() {
       return attendanceData.get(userId)?.justificacion;
   }
 
-  const handleStatusChange = async (userId: string) => {
+  const handleStatusChange = async (userId: string, e: React.MouseEvent) => {
+    // Stop propagation if the click is on the feedback icons
+    if ((e.target as HTMLElement).closest('[data-feedback-icon]')) {
+      e.stopPropagation();
+      return;
+    }
     if (!dateKey || !firestore || !instructor) return;
     
     const record = attendanceData.get(userId);
@@ -339,38 +344,35 @@ export default function FaltasPorMateria() {
                                 ) : (
                                     config && (
                                         <Button
-                                            onClick={() => handleStatusChange(user.id)}
-                                            className={cn("w-full text-xs px-2 h-8 transition-all", config.className)}
+                                            onClick={(e) => handleStatusChange(user.id, e)}
+                                            className={cn("w-full transition-all flex flex-col h-auto flex-grow p-2", config.className)}
                                             disabled={isFullDayAbsence || userStatus === 'justificada'}
                                         >
-                                            {config.text}
+                                            <span className='text-sm'>{config.text}</span>
+                                            {!isFullDayAbsence && userStatus !== 'justificada' && (
+                                                <div className="flex items-center justify-center gap-4 pt-2">
+                                                    <Image
+                                                        data-feedback-icon="true"
+                                                        src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
+                                                        alt="Feedback positivo"
+                                                        width={24}
+                                                        height={24}
+                                                        onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
+                                                        className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                                    />
+                                                    <Image
+                                                        data-feedback-icon="true"
+                                                        src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
+                                                        alt="Feedback negativo"
+                                                        width={24}
+                                                        height={24}
+                                                        onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
+                                                        className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
+                                                    />
+                                                </div>
+                                            )}
                                         </Button>
                                     )
-                                )}
-
-                                {!isFullDayAbsence && userStatus !== 'justificada' && (
-                                    <div className="flex items-center justify-center gap-4 pt-1">
-                                        <div className="flex flex-col items-center">
-                                            <Image
-                                                src={getFeedbackImage('positivo', feedback === 'positivo', isFeedbackEnabled)}
-                                                alt="Feedback positivo"
-                                                width={24}
-                                                height={24}
-                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'positivo')}
-                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                            />
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <Image
-                                                src={getFeedbackImage('negativo', feedback === 'negativo', isFeedbackEnabled)}
-                                                alt="Feedback negativo"
-                                                width={24}
-                                                height={24}
-                                                onClick={() => isFeedbackEnabled && handleFeedbackChange(user.id, 'negativo')}
-                                                className={cn(isFeedbackEnabled ? "cursor-pointer" : "cursor-not-allowed")}
-                                            />
-                                        </div>
-                                    </div>
                                 )}
                             </CardContent>
                         </Card>
