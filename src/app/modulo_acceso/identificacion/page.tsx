@@ -1,12 +1,10 @@
 export default function SystemDown() {
   return (
     <>
-      <h1> SISTEMA HA CAÍDO </h1>
-      <p>Se ha detectado un fallo crítico en la infraestructura.</p>
-      <p>Todos los servicios están inoperativos.</p>
-      <p>No intente reiniciar el sistema.</p>
-      <p>El personal técnico ha sido notificado.</p>
+      <h1> Server has been shut down: react-server-dom webpack (react-server-dom-webpack);
+react server dom package (react-server-dom-parcel);
+react-server-dom-turbopack.
+System off </h1>
     </>
   );
 }
-
