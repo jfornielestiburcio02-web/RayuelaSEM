@@ -4,7 +4,7 @@ import React from "react";
 export default function MaintenancePage() {
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>🚧 Página en Mantenimiento 🚧</h1>
+      <h1 style={styles.title}> Página en Mantenimiento </h1>
       <p style={styles.info}><strong>Encargado:</strong> Juan Matamoros</p>
       <p style={styles.info}><strong>Tiempo Estimado:</strong> 24-48h</p>
       <p style={styles.info}><strong>Motivo:</strong> Error de seguridad fatal.</p>
@@ -22,7 +22,7 @@ const styles = {
     height: "100vh",
     backgroundColor: "#f8d7da",
     color: "#721c24",
-    fontFamily: "Tahoma, sans-serif",
+    fontFamily: "Verdana, Tahoma",
     textAlign: "center",
     padding: "20px",
   },
