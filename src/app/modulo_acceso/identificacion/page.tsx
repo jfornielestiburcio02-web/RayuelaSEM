@@ -1,10 +1,8 @@
 export default function SystemDown() {
   return (
     <>
-      <h1> Server has been shut down: react-server-dom webpack (react-server-dom-webpack);
-react server dom package (react-server-dom-parcel);
-react-server-dom-turbopack.
-System off </h1>
+      <h1> El servidor ha sufrido un error. Servicio Inhabilitado temporalmente. Estamos trabajando para restablecer el servicio.  </h1>
+      <p1> Att: doctor4446666 </p1>
     </>
   );
 }
