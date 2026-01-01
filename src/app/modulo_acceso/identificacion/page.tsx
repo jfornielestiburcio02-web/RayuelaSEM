@@ -1,11 +1,17 @@
-export default function DatabaseError() {
+import LoginForm from './login-form';
+
+export default function IdentificacionPage() {
   return (
-    <>
-      <h1>Database error. rest?n=query=REQ=EST</h1>
-      <p>INDEX.JS7108162794263789563784652893712395823465394527391236482645237950698245127348971624125837462849572349057128939461283547812634590732490586238465813548192471239Q78627856384756782465782634957834685324959237495812737283465862347561293847129380472894956237489590172394826457826378941263857234651: (?)</p>
-      <p>rest1736189unu8376482764543267289347638</p>
-      <p>Database error. rest?n=query=REQ=EST</p>
-      <p>imop122o871233</p>
-    </>
+    <main
+      className="flex min-h-screen items-start justify-center p-4 bg-cover bg-center pt-48"
+      style={{
+        backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')",
+      }}
+      aria-label="Fondo abstracto con formas geométricas y colores pastel."
+    >
+      <div className="w-full max-w-sm">
+        <LoginForm />
+      </div>
+    </main>
   );
 }
