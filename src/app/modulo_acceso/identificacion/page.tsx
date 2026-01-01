@@ -89,9 +89,7 @@ export default function SystemDown() {
         <p>Se ha detectado un fallo crítico en la infraestructura.</p>
         <p className="critical">Todos los servicios están inoperativos.</p>
         <p>No intente reiniciar el sistema.</p>
-        <p>El personal técnico ha sido notificado.</p>
 
-        <p className="signature">Att: doctor4446666</p>
       </div>
     </>
   );
