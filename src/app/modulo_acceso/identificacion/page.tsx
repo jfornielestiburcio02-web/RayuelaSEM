@@ -1,9 +1,7 @@
 export default function SystemDown() {
-  return (
-    <>
-      <style>{      `}</style>
+  return 
 
-      <div className="system-down scanlines">
+      className="system-down scanlines">
         <h1>SISTEMA HA CAÍDO</h1>
 
         <p>Se ha detectado un fallo crítico en la infraestructura.</p>
