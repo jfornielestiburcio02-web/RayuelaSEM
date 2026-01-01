@@ -1,17 +1,10 @@
-import LoginForm from './login-form';
-
-export default function IdentificacionPage() {
+export default function DatabaseError() {
   return (
-    <main
-      className="flex min-h-screen items-start justify-center p-4 bg-cover bg-center pt-48"
-      style={{
-        backgroundImage: "url('https://i.ibb.co/4ZQg3zqX/RAYUELA-identificaci-n.png')",
-      }}
-      aria-label="Fondo abstracto con formas geométricas y colores pastel."
-    >
-      <div className="w-full max-w-sm">
-        <LoginForm />
-      </div>
-    </main>
+    <>
+      <h1>ERROR CRÍTICO</h1>
+      <p>La base de datos ha caído. Error: (?)</p>
+      <p>Solución: (?)</p>
+      <p>Database error. rest?n=query=REQ=EST</p>
+    </>
   );
 }
