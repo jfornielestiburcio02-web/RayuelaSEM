@@ -27,6 +27,7 @@ export default function SystemHasCollectedErrors1() {
       }}>
         <h1 style={{ color: "#f44336" }}>Imposibilidad de conectar de nuevo la app</h1>
         <p>SystemHasCollectedErrors1.js</p>
+        <p1>javascript:prepararAccesoAplicacionEJECUCIONERRORES´(SEMac4)</p1>
         <button
           onClick={ejecutarAccion} // ✅ Ahora permitido
           style={{
