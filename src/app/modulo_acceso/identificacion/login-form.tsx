@@ -1,98 +1,118 @@
-export default function SystemDown() {
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { KeyRound, User } from "lucide-react";
+import Link from 'next/link';
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth, useFirestore } from "@/firebase";
+import { signInWithEmailAndPassword, setPersistence, inMemoryPersistence } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "El correo electrónico no es válido." }),
+  password: z.string().min(1, { message: "La contraseña es obligatoria." }),
+});
+
+export default function LoginForm() {
+  const { toast } = useToast();
+  const auth = useAuth();
+  const firestore = useFirestore();
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await setPersistence(auth, inMemoryPersistence);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de vuelta!",
+      });
+      router.push('/modulo_acceso/Contenedor'); // Redirect to the container page
+    } catch (error: any) {
+        let description = "Credenciales incorrectas o error de conexión.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            description = "El correo electrónico o la contraseña son incorrectos.";
+        } else if (error.code === 'auth/invalid-credential') {
+            description = "Las credenciales proporcionadas no son válidas.";
+        }
+        console.error("Login Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al iniciar sesión",
+        description: description,
+      });
+    }
+  }
+
   return (
-    <>
-      <style>{`
-        * {
-          box-sizing: border-box;
-        }
-
-        body {
-          margin: 0;
-        }
-
-        .system-down {
-          min-height: 100vh;
-          width: 100vw;
-          background: radial-gradient(circle at center, #1a0000 0%, #000 75%);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          text-align: center;
-          font-family: Verdana, Geneva, sans-serif;
-          color: #ff3b3b;
-          overflow: hidden;
-        }
-
-        .system-down h1 {
-          font-size: 3rem;
-          letter-spacing: 4px;
-          margin-bottom: 25px;
-          text-transform: uppercase;
-          animation: flicker 2s infinite;
-          text-shadow:
-            0 0 5px #ff0000,
-            0 0 15px #ff0000,
-            0 0 30px #ff1a1a;
-        }
-
-        .system-down p {
-          font-size: 1.1rem;
-          margin: 6px 0;
-          color: #ff8a8a;
-        }
-
-        .system-down .critical {
-          color: #ffffff;
-          font-weight: bold;
-          margin-top: 15px;
-          text-shadow: 0 0 8px #ff0000;
-        }
-
-        .system-down .signature {
-          margin-top: 40px;
-          font-size: 0.9rem;
-          color: #ff0000;
-          opacity: 0.8;
-        }
-
-        @keyframes flicker {
-          0% { opacity: 1; }
-          5% { opacity: 0.6; }
-          10% { opacity: 1; }
-          15% { opacity: 0.3; }
-          20% { opacity: 1; }
-          100% { opacity: 1; }
-        }
-
-        .scanlines::before {
-          content: "";
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: repeating-linear-gradient(
-            to bottom,
-            rgba(255,255,255,0.03),
-            rgba(255,255,255,0.03) 1px,
-            transparent 1px,
-            transparent 3px
-          );
-          pointer-events: none;
-        }
-      `}</style>
-
-      <div className="system-down scanlines">
-        <h1>SISTEMA HA CAÍDO</h1>
-
-        <p>Se ha detectado un fallo crítico en la infraestructura.</p>
-        <p className="critical">Todos los servicios están inoperativos.</p>
-        <p>No intente reiniciar el sistema.</p>
-        <p>El personal técnico ha sido notificado.</p>
-
-        <p className="signature">Att: doctor4446666</p>
-      </div>
-    </>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-white">Correo Electrónico</FormLabel>
+              <FormControl>
+                <div className="relative flex items-center">
+                  <User className="absolute left-3 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <Input placeholder="nombre@ejemplo.com" {...field} className="pl-10 bg-white" />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-white">Contraseña</FormLabel>
+              <FormControl>
+                <div className="relative flex items-center">
+                  <KeyRound className="absolute left-3 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <Input type="password" placeholder="••••••••" {...field} className="pl-10 bg-white" />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex flex-col items-center space-y-4 pt-4">
+          <Button type="submit" size="sm" className="bg-black hover:bg-black/90 text-white font-bold px-8 w-full">
+            Entrar
+          </Button>
+           <Separator className="bg-white/20 my-4" />
+           <Link href="/secretaria-virtual" className="text-white hover:underline text-sm font-medium">
+             Secretaría Virtual
+           </Link>
+        </div>
+      </form>
+    </Form>
   );
 }
