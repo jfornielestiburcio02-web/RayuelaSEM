@@ -40,7 +40,6 @@ export default function SystemHasCollectedErrors1() {
             cursor: "pointer"
           }}
         >
-          Ejecutar Acción
         </button>
       </div>
     </div>
