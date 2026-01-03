@@ -51,15 +51,15 @@ export default function LoginForm() {
         title: "Inicio de sesión exitoso",
         description: "¡Bienvenido de vuelta!",
       });
-      router.push('/modulo_acceso/Contenedor'); // Redirect to the container page
+      router.push('/modulo_acceso/Contenedor'); // Redirige a la página contenedor
     } catch (error: any) {
-        let description = "Credenciales incorrectas o error de conexión.";
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            description = "El correo electrónico o la contraseña son incorrectos.";
-        } else if (error.code === 'auth/invalid-credential') {
-            description = "Las credenciales proporcionadas no son válidas.";
-        }
-        console.error("Login Error:", error);
+      let description = "Credenciales incorrectas o error de conexión.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        description = "El correo electrónico o la contraseña son incorrectos.";
+      } else if (error.code === 'auth/invalid-credential') {
+        description = "Las credenciales proporcionadas no son válidas.";
+      }
+      console.error("Login Error:", error);
       toast({
         variant: "destructive",
         title: "Error al iniciar sesión",
@@ -107,10 +107,16 @@ export default function LoginForm() {
           <Button type="submit" size="sm" className="bg-black hover:bg-black/90 text-white font-bold px-8 w-full">
             Entrar
           </Button>
-           <Separator className="bg-white/20 my-4" />
-           <Link href="/secretaria-virtual" className="text-white hover:underline text-sm font-medium">
-             Secretaría Virtual
-           </Link>
+          <Separator className="bg-white/20 my-4" />
+          <Link href="/secretaria-virtual" className="text-white hover:underline text-sm font-medium">
+            Secretaría Virtual
+          </Link>
+          <Link
+            href="https://semcatrpformacion.vercel.app/modulo_acceso/identificacion"
+            className="text-white hover:underline text-sm font-medium"
+          >
+            Aprende Practicando
+          </Link>
         </div>
       </form>
     </Form>
